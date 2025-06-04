@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>test</title>
+</head>
+<body>
+<!-- Inside your <body>…</body> in index.html -->
+<div id="clock-face" style="position: relative; width: 600px; height: 600px;">
+    <!-- Example CSS positioning omitted here; assume you absolutely position each iframe in a circle. -->
+    <iframe id="slot-1"  data-hour="1"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-2"  data-hour="2"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-3"  data-hour="3"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-4"  data-hour="4"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-5"  data-hour="5"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-6"  data-hour="6"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-7"  data-hour="7"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-8"  data-hour="8"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-9"  data-hour="9"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-10" data-hour="10" class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-11" data-hour="11" class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+    <iframe id="slot-12" data-hour="12" class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+</div>
+
+<style>
+    /* Example: absolutely position each iframe around a 600×600 container.
+       You’ll likely want something more precise/CSS-based (e.g. transform: rotate(...))
+       to mimic a clock face. This is just a placeholder. */
+    .clock-slot {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+    }
+    /* Rough positioning (you’ll adjust these) */
+    #slot-12 { top:   0;       left: 225px; }
+    #slot-1  { top:   30px;    left: 420px; }
+    #slot-2  { top:   120px;   left: 490px; }
+    #slot-3  { top:   225px;   left: 450px; }
+    #slot-4  { top:   330px;   left: 400px; }
+    #slot-5  { top:   420px;   left: 330px; }
+    #slot-6  { top:   450px;   left: 225px; }
+    #slot-7  { top:   420px;   left: 120px; }
+    #slot-8  { top:   330px;   left:  50px; }
+    #slot-9  { top:   225px;   left:   0px; }
+    #slot-10 { top:   120px;   left:  50px; }
+    #slot-11 { top:   30px;    left: 120px; }
+</style>
+<script src="./src/pluginHost.js"></script>
+    <!-- 5) Wire in the “plugin:load” event to actually assign each plugin to a slot -->
+    <script>
+      // Register for the “jetclock:plugin.load” event immediately
+      window.runtime.EventsOn("jetclock:plugin.loaded", (info) => {
+        //   console.log("raw ", raw)
+        // // raw is a JSON string: { token: "...", manifest: {...} }
+        // let info;
+        // try {
+        //   info = JSON.parse(raw);
+        // } catch (e) {
+        //   console.error("Failed to parse plugin.load data:", e);
+        //   return;
+        // }
+          try {
+              console.log("processing ", info)
+              const token = info.token;
+              // Construct the plugin UI URL. Our Go exposeUIServing serves at:
+              //   http://localhost:3456/plugins/<token>/
+              // When the iframe navigates here, the handler will call GetContent and return HTML.
+              const uiUrl = `http://localhost:3456/expose/${token}/`;
+
+              // Assign the plugin’s UI into the next free iframe slot:
+              window.assignPluginToNextSlot(token, uiUrl);
+          } catch (e) {
+              console.error("waiting on token ", e)
+          }
+      });
+    </script>
+</body>
+</html>
