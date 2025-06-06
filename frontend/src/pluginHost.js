@@ -12,14 +12,14 @@
         if (typeof pluginToken !== "string" || pluginToken === "") return;
 
         try {
-            window.runtime.EventsEmit("plugin:message", JSON.stringify(data));
+            window.runtime.EventsEmit("plugin.message", JSON.stringify(data));
         } catch (err) {
             console.warn("pluginHost: cannot emit plugin:message (Wails not ready?):", err);
         }
     });
 
     // ────────────────────────────────────────────────────────────────────────────────
-    // 2) Go → Plugin: forward each "plugin:event:<token>" back to exactly one iframe.
+    // 2) Go → Plugin: forward each "plugin.event:<token>" back to exactly one iframe.
     // ────────────────────────────────────────────────────────────────────────────────
     function forwardToIframe(pluginToken, rawJSON) {
         // Look up the <iframe> whose data-plugin-token matches.
@@ -36,6 +36,8 @@
             console.error("pluginHost: invalid JSON from Go:", err, rawJSON);
             return;
         }
+        data.pluginToken = pluginToken
+        console.log(`forwarding to ${pluginToken} with data ${rawJSON} - raw payload ${data.payload}`)
         iframe.contentWindow.postMessage(data, "*");
     }
 
@@ -45,7 +47,8 @@
             console.warn("pluginHost: Wails EventsOn not available yet");
             return;
         }
-        window.runtime.EventsOn(`plugin:event:${pluginToken}`, (raw) => {
+        console.log(`subscribing to 'plugin.event:${pluginToken}`)
+        window.runtime.EventsOn(`plugin.event:${pluginToken}`, (raw) => {
             forwardToIframe(pluginToken, raw);
         });
     }

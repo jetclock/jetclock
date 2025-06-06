@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/jetclock/JetClock-UI/pkg/pluginmanager"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"path/filepath"
 	"reflect"
+	rt "runtime"
 )
 
 // App struct
@@ -64,6 +66,7 @@ func (a *App) domReady(ctx context.Context) {
 			return
 		}
 		fmt.Println("raw -- ", msgMap)
+
 		pm.HandlePluginMessage(msgMap)
 	})
 
@@ -82,7 +85,9 @@ func (we *WailsEmitter) Emit(event string, data interface{}) {
 	//	runtime.LogErrorf(we.ctx, "WailsEmitter: marshal error for %s: %v", event, err)
 	//	return
 	//}
-	runtime.EventsEmit(we.ctx, "jetclock:plugin.loaded", data)
+	fmt.Println("emit:", event, data)
+	whoCalledMe()
+	runtime.EventsEmit(we.ctx, event, data)
 }
 
 // WailsListener implements pluginmanager.EventListener via Wails
@@ -95,4 +100,25 @@ func (wl *WailsListener) On(event string, callback func(args ...interface{})) {
 	runtime.EventsOn(wl.ctx, event, func(args ...interface{}) {
 		callback(args...)
 	})
+}
+func whoCalledMe() {
+	pc, file, line, ok := rt.Caller(2)
+	if !ok {
+		fmt.Println("Could not retrieve caller information")
+		return
+	}
+
+	// Use runtime.FuncForPC to get a *Func, then .Name() to retrieve the function’s name.
+	fn := rt.FuncForPC(pc)
+	funcName := "unknown"
+	if fn != nil {
+		funcName = fn.Name()
+		// If you want just the base of the function name (no full package path):
+		funcName = filepath.Ext(funcName)
+		if len(funcName) > 0 {
+			funcName = funcName[1:] // strip leading dot
+		}
+	}
+
+	fmt.Printf("Called by %s (at %s:%d)\n", funcName, file, line)
 }
