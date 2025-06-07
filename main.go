@@ -55,12 +55,13 @@ func main() {
 		Height:     480,
 		Frameless:  true,
 		Fullscreen: true,
-		Debug:      options.Debug{OpenInspectorOnStartup: true},
+		//Debug:      options.Debug{OpenInspectorOnStartup: true},
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnDomReady:       app.domReady,
+		OnStartup:        wifi.onStartup,
 		Bind: []interface{}{
 			app,
 			wifi,

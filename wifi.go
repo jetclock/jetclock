@@ -25,7 +25,7 @@ func NewWifi(mode string, config hotspot.HotspotConfig) *Wifi {
 }
 
 func (w *Wifi) onStartup(ctx context.Context) {
-	fmt.Println("Wifi onStartup running")
+	fmt.Println("Starting wifi. Mode is", w.mode)
 	w.ctx = ctx
 	switch w.mode {
 	case "connect":
