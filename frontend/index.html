@@ -220,7 +220,7 @@
     </svg>
 
     <div id="wifi-mode">
-        <img id="wifi-mode-icon" src="./src/assets/images/wifi.svg" alt="Wi-Fi status" width="24" height="24">
+        <img id="wifi-mode-icon" alt="Wi-Fi status" width="24" height="24">
     </div>
 
     <iframe id="slot-1"  data-hour="1"  class="clock-slot" sandbox="allow-scripts"></iframe>
@@ -239,36 +239,6 @@
 
 <script src="./src/main.js" type="module"></script>
 <script src="./src/pluginHost.js" type="module"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const icon = document.getElementById("wifi-mode-icon");
-        // Mirror your Go enum values:
-        const MODE_UNKNOWN = 0;
-        const MODE_INFRA   = 1;
-        const MODE_AP      = 2;
-
-        window.runtime.EventsOn("jetclock:wifi.mode", (mode) => {
-            console.log("📶 wifi.mode event:", mode, typeof mode);
-            switch (mode) {
-                case MODE_AP:
-                    icon.src = "./src/assets/images/cell_tower.svg";
-                    icon.alt = "Hotspot";
-                    break;
-
-                case MODE_INFRA:
-                    icon.src = "./src/assets/images/wifi.svg";
-                    icon.alt = "Wi-Fi";
-                    break;
-
-                default:
-                    // Fallback (unknown)
-                    icon.src = "./src/assets/images/wifi.svg";
-                    icon.alt = "Unknown";
-                    break;
-            }
-        });
-    });
-</script>
 <script>
     window.runtime.EventsOn("jetclock:plugin.loaded", (info) => {
         try {
