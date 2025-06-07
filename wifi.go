@@ -40,11 +40,13 @@ func (w *Wifi) watchWiFi(ctx context.Context) {
 			mode, err := wifi.GetWifiMode()
 			if err != nil {
 				log.Printf("Wi-Fi watch error: %v", err)
+				logger.Log.Errorf("Wi-Fi watch error: %v", err)
 			} else if mode != lastMode {
-				log.Printf("Wi-Fi mode changed: %s → %s", lastMode, mode)
+				logger.Log.Infof("Wi-Fi mode changed: %s → %s", lastMode, mode)
 				lastMode = mode
 				fmt.Printf("Wi-Fi mode changed: %s\n", mode.String())
 			}
+			logger.Log.Infof("emitting wifi mode: %s", lastMode)
 			runtime.EventsEmit(w.ctx, "jetclock:wifi.mode", lastMode)
 		}
 	}
@@ -62,7 +64,11 @@ func (w *Wifi) onStartup(ctx context.Context) {
 			log.Fatalf("❌ Failed to connect to WiFi: %v", err)
 		}
 	case "hotspot":
-		hotspot.Start(w.config)
+		err := hotspot.Start(w.config)
+		if err != nil {
+			logger.Log.Errorf("❌ Failed to start hotspot: %v", err)
+			return
+		}
 	case "auto":
 		if wifi.IsConnected() {
 			logger.Log.Info("✅ Already connected to a WiFi network. No action needed.")
@@ -92,35 +98,6 @@ func (w *Wifi) onStartup(ctx context.Context) {
 		}
 	case "forget":
 		fmt.Println("not yet implemented")
-		//if *interactive {
-		//	networks, err := wifi.ListKnownNetworks()
-		//	if err != nil {
-		//		log.Fatalf("Failed to list networks: %v", err)
-		//	}
-		//	if len(networks) == 0 {
-		//		log.Println("No known networks to forget.")
-		//		return
-		//	}
-		//	fmt.Println("Select a network to forget:")
-		//	for i, name := range networks {
-		//		fmt.Printf("[%d] %s\n", i+1, name)
-		//	}
-		//	var choice int
-		//	fmt.Print("Enter number: ")
-		//	_, err = fmt.Scanf("%d", &choice)
-		//	if err != nil || choice < 1 || choice > len(networks) {
-		//		log.Fatalf("Invalid selection")
-		//	}
-		//	if err := wifi.ForgetNetwork(networks[choice-1]); err != nil {
-		//		log.Fatalf("Failed to forget network: %v", err)
-		//	}
-		//} else if *ssidToForget != "" {
-		//	if err := wifi.ForgetNetwork(*ssidToForget); err != nil {
-		//		log.Fatalf("Failed to forget network: %v", err)
-		//	}
-		//} else {
-		//	log.Fatalf("Please provide either --ssid or --interactive")
-		//}
 	default:
 		logger.Log.Warnf("Mode %s not implmented", w.mode)
 	}

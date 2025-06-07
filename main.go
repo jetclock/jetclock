@@ -48,6 +48,12 @@ func main() {
 
 	app := NewApp()
 	wifi := NewWifi(*mode, config)
+	//configure the running web server to host the config page
+	webserver, err := hotspot.NewServer(config)
+	if err != nil {
+		log.Fatalf("failed to create server: %v", err)
+	}
+	webserver.Start()
 	// Create application with options
 	err = wails.Run(&options.App{
 		Title:      "jetclock",

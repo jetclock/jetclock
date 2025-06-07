@@ -3,7 +3,7 @@ module jetclock
 go 1.24.3
 
 require (
-	github.com/jetclock/jetclock-sdk v0.0.0-20250607125602-acc5141820a1
+	github.com/jetclock/jetclock-sdk v0.0.0-20250607150631-77bb88ff68c9
 	github.com/wailsapp/wails/v2 v2.10.1
 )
 
@@ -47,5 +47,3 @@ require (
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )
-
-//replace github.com/jetclock/jetclock-sdk => /Users/alexwalker/go/src/github.com/jetclock/jetclock-sdk
