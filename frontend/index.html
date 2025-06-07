@@ -242,19 +242,28 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const icon = document.getElementById("wifi-mode-icon");
+        // Mirror your Go enum values:
+        const MODE_UNKNOWN = 0;
+        const MODE_INFRA   = 1;
+        const MODE_AP      = 2;
 
         window.runtime.EventsOn("jetclock:wifi.mode", (mode) => {
+            console.log("📶 wifi.mode event:", mode, typeof mode);
             switch (mode) {
-                case "ap":
-                case "hotspot":
+                case MODE_AP:
                     icon.src = "./src/assets/images/cell_tower.svg";
                     icon.alt = "Hotspot";
                     break;
-                case "infra":
-                case "wifi":
-                default:
+
+                case MODE_INFRA:
                     icon.src = "./src/assets/images/wifi.svg";
                     icon.alt = "Wi-Fi";
+                    break;
+
+                default:
+                    // Fallback (unknown)
+                    icon.src = "./src/assets/images/wifi.svg";
+                    icon.alt = "Unknown";
                     break;
             }
         });

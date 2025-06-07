@@ -24,8 +24,8 @@ github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf h1:WfD7V
 github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf/go.mod h1:hyb9oH7vZsitZCiBt0ZvifOrB+qc8PS5IiilCIb87rg=
 github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e h1:Q3+PugElBCf4PFpxhErSzU3/PY5sFL5Z6rfv4AbGAck=
 github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e/go.mod h1:alcuEEnZsY1WQsagKhZDsoPCRoOijYqhZvPwLG0kzVs=
-github.com/jetclock/jetclock-sdk v0.0.0-20250607123523-0126ace84290 h1:c6uPofWwpnXjtXk6mD7k5ZqnV5lgHgD5ybWyfB9M+hI=
-github.com/jetclock/jetclock-sdk v0.0.0-20250607123523-0126ace84290/go.mod h1:OTDy3lqX4JUNEJKrtFCcWXJZHdGvRWAnt4171DLTQzQ=
+github.com/jetclock/jetclock-sdk v0.0.0-20250607125602-acc5141820a1 h1:iMlzHVOfZP0Tc9R+NnP4Vr9VSAsHV0yx6hefLPmXrYk=
+github.com/jetclock/jetclock-sdk v0.0.0-20250607125602-acc5141820a1/go.mod h1:OTDy3lqX4JUNEJKrtFCcWXJZHdGvRWAnt4171DLTQzQ=
 github.com/knqyf263/go-plugin v0.9.0 h1:CQs2+lOPIlkZVtcb835ZYDEoyyWJWLbSTWeCs0EwTwI=
 github.com/knqyf263/go-plugin v0.9.0/go.mod h1:2z5lCO1/pez6qGo8CvCxSlBFSEat4MEp1DrnA+f7w8Q=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=

@@ -17,3 +17,14 @@ to this in your browser, and you can call your Go code from devtools.
 ## Building
 
 To build a redistributable, production mode package, use `wails build`.
+
+
+notes:
+
+
+- `export GOPRIVATE=github.com/jetclock/jetclock-sdk`
+
+```sql
+pkill -9 jetclock
+DISPLAY=:0 nohup ~/.jetclock/jetclock --mode=hotspot>/dev/null 2>&1 &
+```
