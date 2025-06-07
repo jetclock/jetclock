@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analog Clock with Plugins</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=cell_tower,wifi" />
-<!--    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=wifi" />-->
     <link rel="stylesheet" href="./src/style.css" />
 
     <style>
@@ -221,8 +220,7 @@
     </svg>
 
     <div id="wifi-mode">
-        <span class="material-symbols-outlined">
-        </span>
+        <img id="wifi-mode-icon" src="./src/assets/images/wifi.svg" alt="Wi-Fi status" width="24" height="24">
     </div>
 
     <iframe id="slot-1"  data-hour="1"  class="clock-slot" sandbox="allow-scripts"></iframe>
@@ -243,30 +241,22 @@
 <script src="./src/pluginHost.js" type="module"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const wifiModeEl = document.getElementById("wifi-mode");
+        const icon = document.getElementById("wifi-mode-icon");
 
-        // Listen for the backend → frontend signal
         window.runtime.EventsOn("jetclock:wifi.mode", (mode) => {
-            // mode might be “infra” (client), “ap” (hotspot), etc.
-            let iconName;
             switch (mode) {
                 case "ap":
                 case "hotspot":
-                    iconName = "cell_tower";
+                    icon.src = "./src/assets/images/cell_tower.svg";
+                    icon.alt = "Hotspot";
                     break;
                 case "infra":
                 case "wifi":
                 default:
-                    iconName = "wifi";
+                    icon.src = "./src/assets/images/wifi.svg";
+                    icon.alt = "Wi-Fi";
                     break;
             }
-
-            // Replace the inner HTML with the new Material Symbol
-            wifiModeEl.innerHTML = `
-        <span class="material-symbols-outlined">
-          ${iconName}
-        </span>
-      `;
         });
     });
 </script>
