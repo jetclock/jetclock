@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jetclock/JetClock-UI/pkg/pluginmanager"
+	"github.com/jetclock/jetclock-sdk/pkg/pluginmanager"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"path/filepath"
 	"reflect"
@@ -71,7 +71,7 @@ func (a *App) domReady(ctx context.Context) {
 	})
 
 	// Load plugins from './plugins'
-	pm.Startup(ctx, "/Users/alexwalker/go/src/github.com/jetclock/JetClock-UI/plugins")
+	pm.Startup(ctx, "/Users/alexwalker/go/src/github.com/jetclock/jetclock-sdk/plugins")
 }
 
 // WailsEmitter implements pluginmanager.EventEmitter via Wails

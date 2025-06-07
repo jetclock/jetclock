@@ -1,79 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analog Clock with Plugins</title>
+
+    <!-- (Optional) Favicons, etc. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+
+    <!-- Your stylesheet (if any) -->
+    <link rel="stylesheet" href="./src/style.css" />
+
+    <style>
+        /* Each slot now does:
+           1) translate(-50%,-50%) to center,
+           2) rotate(<hourAngle>deg),
+           3) translateY(-260px) outward,
+           4) rotate(-<hourAngle>deg) back so content is not rotated. */
+        #slot-12 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(0deg)      /* 12 o’clock angle */
+                    translateY(-130px)
+                    rotate(0deg);     /* counter-rotation */
+        }
+        #slot-1 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(30deg)
+                    translateY(-130px)
+                    rotate(-30deg);
+        }
+        #slot-2 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(60deg)
+                    translateY(-130px)
+                    rotate(-60deg);
+        }
+        #slot-3 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(90deg)
+                    translateY(-130px)
+                    rotate(-90deg);
+        }
+        #slot-4 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(120deg)
+                    translateY(-130px)
+                    rotate(-120deg);
+        }
+        #slot-5 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(150deg)
+                    translateY(-130px)
+                    rotate(-150deg);
+        }
+        #slot-6 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(180deg)
+                    translateY(-130px)
+                    rotate(-180deg);
+        }
+        #slot-7 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(210deg)
+                    translateY(-130px)
+                    rotate(-210deg);
+        }
+        #slot-8 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(240deg)
+                    translateY(-130px)
+                    rotate(-240deg);
+        }
+        #slot-9 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(270deg)
+                    translateY(-130px)
+                    rotate(-270deg);
+        }
+        #slot-10 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(300deg)
+                    translateY(-130px)
+                    rotate(-300deg);
+        }
+        #slot-11 {
+            transform:
+                    translate(-50%, -50%)
+                    rotate(330deg)
+                    translateY(-130px)
+                    rotate(-330deg);
+        }
+    </style>
 </head>
+
 <body>
-<!-- Inside your <body>…</body> in index.html -->
-<div id="clock-face" style="position: relative; width: 600px; height: 600px;">
-    <!-- Example CSS positioning omitted here; assume you absolutely position each iframe in a circle. -->
-    <iframe id="slot-1"  data-hour="1"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-2"  data-hour="2"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-3"  data-hour="3"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-4"  data-hour="4"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-5"  data-hour="5"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-6"  data-hour="6"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-7"  data-hour="7"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-8"  data-hour="8"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-9"  data-hour="9"  class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-10" data-hour="10" class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-11" data-hour="11" class="clock-slot" sandbox="allow-scripts" style=""></iframe>
-    <iframe id="slot-12" data-hour="12" class="clock-slot" sandbox="allow-scripts" style=""></iframe>
+<div class="visually-hidden"></div>
+<div id="clock-container">
+    <!-- 1) The SVG clock face: -->
+    <svg id="clock-svg" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle class="clock-face" r="48" fill="#fff" stroke="#000" stroke-width="1" />
+
+        <!-- Major tick marks (every 30°) -->
+        <line class="major" y1="35" y2="45" transform="rotate(0)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(30)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(60)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(90)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(120)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(150)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(180)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(210)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(240)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(270)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(300)" stroke="#000" stroke-width="1"/>
+        <line class="major" y1="35" y2="45" transform="rotate(330)" stroke="#000" stroke-width="1"/>
+
+        <line class="minor" y1="42" y2="45" transform="rotate(6)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(12)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(18)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(24)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(36)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(42)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(48)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(54)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(66)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(72)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(78)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(84)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(96)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(102)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(108)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(114)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(126)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(132)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(138)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(144)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(156)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(162)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(168)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(174)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(186)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(192)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(198)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(204)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(216)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(222)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(228)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(234)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(246)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(252)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(258)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(264)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(276)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(282)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(288)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(294)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(306)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(312)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(318)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(324)" />
+
+        <line class="minor" y1="42" y2="45" transform="rotate(336)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(342)" />
+        <line class="minor" y1="42" y2="45" transform="rotate(348)" />
+
+        <line class="hour" y1="2" y2="-20" />
+
+        <line class="minute" y1="4" y2="-30" />
+
+        <g class="second">
+            <line class="second-hand" y1="10" y2="-38" />
+            <line class="second-counterweight" y1="10" y2="2" />
+        </g>
+    </svg>
+
+    <!-- 2) Twelve iframes, one for each hour slot: -->
+    <iframe id="slot-1"  data-hour="1"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-2"  data-hour="2"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-3"  data-hour="3"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-4"  data-hour="4"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-5"  data-hour="5"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-6"  data-hour="6"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-7"  data-hour="7"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-8"  data-hour="8"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-9"  data-hour="9"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-10" data-hour="10" transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-11" data-hour="11" transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-12" data-hour="12" transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
 </div>
 
-<style>
-    /* Example: absolutely position each iframe around a 600×600 container.
-       You’ll likely want something more precise/CSS-based (e.g. transform: rotate(...))
-       to mimic a clock face. This is just a placeholder. */
-    .clock-slot {
-        position: absolute;
-        width: 150px;
-        height: 150px;
-    }
-    /* Rough positioning (you’ll adjust these) */
-    #slot-12 { top:   0;       left: 225px; }
-    #slot-1  { top:   30px;    left: 420px; }
-    #slot-2  { top:   120px;   left: 490px; }
-    #slot-3  { top:   225px;   left: 450px; }
-    #slot-4  { top:   330px;   left: 400px; }
-    #slot-5  { top:   420px;   left: 330px; }
-    #slot-6  { top:   450px;   left: 225px; }
-    #slot-7  { top:   420px;   left: 120px; }
-    #slot-8  { top:   330px;   left:  50px; }
-    #slot-9  { top:   225px;   left:   0px; }
-    #slot-10 { top:   120px;   left:  50px; }
-    #slot-11 { top:   30px;    left: 120px; }
-</style>
-<script src="./src/pluginHost.js"></script>
-    <!-- 5) Wire in the “plugin:load” event to actually assign each plugin to a slot -->
-    <script>
-      // Register for the “jetclock:plugin.load” event immediately
-      window.runtime.EventsOn("jetclock:plugin.loaded", (info) => {
-        //   console.log("raw ", raw)
-        // // raw is a JSON string: { token: "...", manifest: {...} }
-        // let info;
-        // try {
-        //   info = JSON.parse(raw);
-        // } catch (e) {
-        //   console.error("Failed to parse plugin.load data:", e);
-        //   return;
-        // }
-          try {
-              console.log("processing ", info)
-              const token = info.token;
-              // Construct the plugin UI URL. Our Go exposeUIServing serves at:
-              //   http://localhost:3456/plugins/<token>/
-              // When the iframe navigates here, the handler will call GetContent and return HTML.
-              const uiUrl = `http://localhost:3456/expose/${token}/`;
+<!-- 3) Plugin‐host glue (your existing pluginHost.js) -->
+<script src="./src/main.js" type="module"></script>
+<script src="./src/pluginHost.js" type="module"></script>
 
-              // Assign the plugin’s UI into the next free iframe slot:
-              window.assignPluginToNextSlot(token, uiUrl);
-          } catch (e) {
-              console.error("waiting on token ", e)
-          }
-      });
-    </script>
+<!-- 4) Listen for the “jetclock:plugin.loaded” event and assign slots -->
+<script>
+    window.runtime.EventsOn("jetclock:plugin.loaded", (info) => {
+        try {
+            // info is already a JS object { token: "...", manifest: {...} }
+            console.log("processing ", info);
+            const token = info.token;
+            // Compose the plugin UI URL—our Go server listens on /expose/<token>/
+            const uiUrl = `http://localhost:3456/expose/${token}/`;
+
+            // Assign the plugin UI into the next open slot
+            window.assignPluginToNextSlot(token, uiUrl);
+        } catch (e) {
+            console.error("Error handling plugin.loaded:", e);
+        }
+    });
+</script>
 </body>
 </html>

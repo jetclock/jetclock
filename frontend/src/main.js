@@ -1,43 +1,48 @@
-import './style.css';
-import './app.css';
+"use strict";
 
-import logo from './assets/images/logo-universal.png';
-import {Greet} from '../wailsjs/go/main/App';
+const DEGREES_PER_HOUR = 360 / 12;
+const DEGREES_PER_MINUTE = 360 / 60;
+const DEGREES_PER_SECOND = 360 / 60;
 
-document.querySelector('#app').innerHTML = `
-    <img id="logo" class="logo">
-      <div class="result" id="result">Please enter your name below 👇</div>
-      <div class="input-box" id="input">
-        <input class="input" id="name" type="text" autocomplete="off" />
-        <button class="btn" onclick="greet()">Greet</button>
-      </div>
-    </div>
-`;
-document.getElementById('logo').src = logo;
+let visuallyHidden = document.querySelector(".visually-hidden");
 
-let nameElement = document.getElementById("name");
-nameElement.focus();
-let resultElement = document.getElementById("result");
+let hourHand = document.querySelector(".hour");
+let minuteHand = document.querySelector(".minute");
+let secondHand = document.querySelector(".second");
 
-// Setup the greet function
-window.greet = function () {
-    // Get name
-    let name = nameElement.value;
+function tick(h, m, s) {
+    h = h == 0 ? 12 : h % 12;
 
-    // Check if the input is empty
-    if (name === "") return;
+    let hh = h.toString().padStart(2, "0");
+    let mm = m.toString().padStart(2, "0");
+    let ss = s.toString().padStart(2, "0");
 
-    // Call App.Greet(name)
-    try {
-        Greet(name)
-            .then((result) => {
-                // Update result with data back from App.Greet()
-                resultElement.innerText = result;
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-    } catch (err) {
-        console.error(err);
-    }
-};
+    visuallyHidden.textContent = `${hh}:${mm}:${ss}`;
+
+    let hourPosition = DEGREES_PER_HOUR * h + m / 2;
+    hourHand.setAttribute("transform", `rotate(${hourPosition})`);
+
+    let minutePosition = DEGREES_PER_MINUTE * m + s / 10;
+    minuteHand.setAttribute("transform", `rotate(${minutePosition})`);
+
+    let secondPosition = DEGREES_PER_SECOND * s;
+    secondHand.setAttribute("transform", `rotate(${secondPosition})`);
+}
+
+let time = new Date();
+
+let hours = time.getHours();
+let minutes = time.getMinutes();
+let seconds = time.getSeconds();
+
+tick(hours, minutes, seconds);
+
+setInterval(function () {
+    time = new Date();
+
+    hours = time.getHours();
+    minutes = time.getMinutes();
+    seconds = time.getSeconds();
+
+    tick(hours, minutes, seconds);
+}, 1000);
