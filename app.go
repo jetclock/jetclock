@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/jetclock/jetclock-sdk/pkg/pluginmanager"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	rt "runtime"
@@ -13,12 +15,19 @@ import (
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx  context.Context
+	home string
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal("no home directory", err)
+	}
+	return &App{
+		home: dir,
+	}
 }
 
 // startup is called when the app starts. The context is saved
@@ -71,7 +80,7 @@ func (a *App) domReady(ctx context.Context) {
 	})
 
 	// Load plugins from './plugins'
-	pm.Startup(ctx, "/Users/alexwalker/go/src/github.com/jetclock/jetclock-sdk/plugins")
+	pm.Startup(ctx, filepath.Join(a.home, ".jetclock", "apps"))
 }
 
 // WailsEmitter implements pluginmanager.EventEmitter via Wails
