@@ -6,7 +6,9 @@ import (
 	"github.com/jetclock/jetclock-sdk/pkg/hotspot"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/wifi"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
+	"time"
 )
 
 // will only work on linux machines.
@@ -18,9 +20,33 @@ type Wifi struct {
 
 // NewApp creates a new App application struct
 func NewWifi(mode string, config hotspot.HotspotConfig) *Wifi {
-	return &Wifi{
+	newWifi := Wifi{
 		mode:   mode,
 		config: config,
+	}
+	go newWifi.watchWiFi(context.Background())
+	return &newWifi
+}
+func (w *Wifi) watchWiFi(ctx context.Context) {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	lastMode := wifi.ModeUnknown
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			mode, err := wifi.GetWifiMode()
+			if err != nil {
+				log.Printf("Wi-Fi watch error: %v", err)
+			} else if mode != lastMode {
+				log.Printf("Wi-Fi mode changed: %s → %s", lastMode, mode)
+				lastMode = mode
+				fmt.Printf("Wi-Fi mode changed: %s\n", mode.String())
+			}
+			runtime.EventsEmit(w.ctx, "jetclock:wifi.mode", lastMode)
+		}
 	}
 }
 

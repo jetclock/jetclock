@@ -4,13 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analog Clock with Plugins</title>
-
-    <!-- (Optional) Favicons, etc. -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-
-    <!-- Your stylesheet (if any) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=cell_tower,wifi" />
+<!--    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=wifi" />-->
     <link rel="stylesheet" href="./src/style.css" />
 
     <style>
@@ -102,6 +97,35 @@
                     rotate(330deg)
                     translateY(-130px)
                     rotate(-330deg);
+        }
+
+        #wifi-mode {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+
+            /* 1) Center on clock face, 2) spin to 135°, 3) push out 50px,
+               4) spin back 135° so inner icon is not rotated: */
+            transform:
+                    translate(-50%, -50%)
+                    rotate(135deg)
+                    translateY(-50px)
+                    rotate(-135deg);
+            transform-origin: center center;
+
+            /* Flex-center the FontAwesome icon */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            /* Make it invisible (no border/background) until content loads */
+            border: none;
+            background: transparent;
+            box-shadow: none;
         }
     </style>
 </head>
@@ -196,26 +220,56 @@
         </g>
     </svg>
 
-    <!-- 2) Twelve iframes, one for each hour slot: -->
-    <iframe id="slot-1"  data-hour="1"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-2"  data-hour="2"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-3"  data-hour="3"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-4"  data-hour="4"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-5"  data-hour="5"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-6"  data-hour="6"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-7"  data-hour="7"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-8"  data-hour="8"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-9"  data-hour="9"  transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-10" data-hour="10" transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-11" data-hour="11" transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
-    <iframe id="slot-12" data-hour="12" transform="rotate(0)" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <div id="wifi-mode">
+        <span class="material-symbols-outlined">
+        </span>
+    </div>
+
+    <iframe id="slot-1"  data-hour="1"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-2"  data-hour="2"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-3"  data-hour="3"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-4"  data-hour="4"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-5"  data-hour="5"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-6"  data-hour="6"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-7"  data-hour="7"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-8"  data-hour="8"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-9"  data-hour="9"  class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-10" data-hour="10" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-11" data-hour="11" class="clock-slot" sandbox="allow-scripts"></iframe>
+    <iframe id="slot-12" data-hour="12" class="clock-slot" sandbox="allow-scripts"></iframe>
 </div>
 
-<!-- 3) Plugin‐host glue (your existing pluginHost.js) -->
 <script src="./src/main.js" type="module"></script>
 <script src="./src/pluginHost.js" type="module"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const wifiModeEl = document.getElementById("wifi-mode");
 
-<!-- 4) Listen for the “jetclock:plugin.loaded” event and assign slots -->
+        // Listen for the backend → frontend signal
+        window.runtime.EventsOn("jetclock:wifi.mode", (mode) => {
+            // mode might be “infra” (client), “ap” (hotspot), etc.
+            let iconName;
+            switch (mode) {
+                case "ap":
+                case "hotspot":
+                    iconName = "cell_tower";
+                    break;
+                case "infra":
+                case "wifi":
+                default:
+                    iconName = "wifi";
+                    break;
+            }
+
+            // Replace the inner HTML with the new Material Symbol
+            wifiModeEl.innerHTML = `
+        <span class="material-symbols-outlined">
+          ${iconName}
+        </span>
+      `;
+        });
+    });
+</script>
 <script>
     window.runtime.EventsOn("jetclock:plugin.loaded", (info) => {
         try {

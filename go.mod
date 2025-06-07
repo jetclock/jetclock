@@ -48,4 +48,4 @@ require (
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )
 
-// replace github.com/wailsapp/wails/v2 v2.9.2 => /Users/alexwalker/go/pkg/mod
+replace github.com/jetclock/jetclock-sdk => /Users/alexwalker/go/src/github.com/jetclock/jetclock-sdk

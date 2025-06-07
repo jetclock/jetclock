@@ -45,5 +45,5 @@ jobs:
       - name: Upload built app
         uses: actions/upload-artifact@v4
         with:
-          name: wails-app-arm64
+          name: jetclock
           path: build/bin/*
