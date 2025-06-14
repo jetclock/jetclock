@@ -24,7 +24,21 @@ notes:
 
 - `export GOPRIVATE=github.com/jetclock/jetclock-sdk`
 
-```sql
+```sh
 pkill -9 jetclock
 DISPLAY=:0 nohup ~/.jetclock/jetclock --mode=hotspot>/dev/null 2>&1 &
+```
+
+or with logs
+
+```sh
+mkdir -p ~/.jetclock/logs
+DISPLAY=:0 nohup ~/.jetclock/jetclock --mode=auto > ~/.jetclock/logs/hotspot.log 2>&1 &
+```
+
+```sh
+journalctl -u hostapd --no-pager -n 50
+journalctl -u NetworkManager --no-pager -n 50
+journalctl -u NetworkManager --no-pager -n 100
+
 ```
