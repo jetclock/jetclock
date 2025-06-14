@@ -41,6 +41,8 @@ func main() {
 	config := hotspot.DefaultConfig
 	if os.Getenv("JETCLOCK_PORT") != "" {
 		config.Port = os.Getenv("JETCLOCK_PORT")
+	} else {
+		config.Port = "80" //hardcode this version to 80 for the pi
 	}
 
 	ssid := os.Getenv("HOTSPOT_SSID")
