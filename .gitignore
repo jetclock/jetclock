@@ -7,3 +7,5 @@ frontend/dist
 
 # Ignore all .env.* files recursively
 **/.env.*
+
+echo "go.work" >> .gitignore
