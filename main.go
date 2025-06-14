@@ -39,6 +39,9 @@ func main() {
 	flag.Parse()
 
 	config := hotspot.DefaultConfig
+	if os.Getenv("JETCLOCK_PORT") != "" {
+		config.Port = os.Getenv("JETCLOCK_PORT")
+	}
 
 	ssid := os.Getenv("HOTSPOT_SSID")
 	if ssid == "" {

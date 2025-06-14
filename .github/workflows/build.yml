@@ -90,9 +90,9 @@ jobs:
           echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
 
           if [ "$IS_PRERELEASE" = "true" ]; then
-            wails build -nosyncgomod -debug -devtools -platform linux/arm64 -ldflags "-X main.version=$VERSION"
+            wails build -debug -ldflags "-X main.version=$VERSION"
           else
-            wails build -nosyncgomod -platform linux/arm64 -ldflags "-X main.version=$VERSION"
+            wails build -debug -ldflags "-X main.version=$VERSION"
           fi
 
       - name: Upload built app
