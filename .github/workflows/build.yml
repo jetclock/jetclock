@@ -90,24 +90,15 @@ jobs:
       - name: Build Wails app
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
-          wails build -debug 
+          VERSION="${{ needs.determine-version.outputs.version }}"
+          IS_PRERELEASE="${{ needs.determine-version.outputs.is_prerelease }}"
+          echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
 
-#      - name: Build Wails app for arm64
-#        env:
-#          PATH: "$PATH:$(go env GOPATH)/bin"
-#          GOARCH: arm64
-#          NODE_OPTIONS: "--max_old_space_size=4096"
-#        run: |
-#          export PATH="$PATH:$(go env GOPATH)/bin"
-#          VERSION="${{ needs.determine-version.outputs.version }}"
-#          IS_PRERELEASE="${{ needs.determine-version.outputs.is_prerelease }}"
-#          echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
-#
-#          if [ "$IS_PRERELEASE" = "true" ]; then
-#            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
-#          else
-#            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
-#          fi
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
+          else
+            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
+          fi
 
       - name: Upload built app
         uses: actions/upload-artifact@v4
