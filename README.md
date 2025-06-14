@@ -33,6 +33,7 @@ or with logs
 
 ```sh
 mkdir -p ~/.jetclock/logs
+sudo setcap 'cap_net_bind_service=+ep' ~/.jetclock/jetclock
 DISPLAY=:0 nohup ~/.jetclock/jetclock --mode=auto > ~/.jetclock/logs/hotspot.log 2>&1 &
 ```
 

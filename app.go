@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/pluginmanager"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
@@ -34,7 +35,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
-
+	debugBridge(ctx)
 	// Create PluginManager
 	pm := pluginmanager.NewPluginManager()
 
@@ -130,4 +131,31 @@ func whoCalledMe() {
 	}
 
 	fmt.Printf("Called by %s (at %s:%d)\n", funcName, file, line)
+}
+
+func debugBridge(ctx context.Context) {
+	// Listen for all frontend logs
+	runtime.EventsOn(ctx, "jetclock:frontend.log", func(args ...interface{}) {
+		if len(args) < 1 {
+			return
+		}
+		m, ok := args[0].(map[string]interface{})
+		if !ok {
+			return
+		}
+		level, _ := m["level"].(string)
+		msg, _ := m["msg"].(string)
+
+		// Now decide: print to stdout, or write to your logfile
+		switch level {
+		case "info":
+			logger.Log.Info("frontend", "msg", msg)
+		case "warn":
+			logger.Log.Warn("frontend", "msg", msg)
+		case "error":
+			logger.Log.Error("frontend", "msg", msg)
+		default:
+			logger.Log.Info("frontend", "msg", msg)
+		}
+	})
 }

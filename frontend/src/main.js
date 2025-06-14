@@ -47,6 +47,7 @@ let minuteHand = document.querySelector(".minute");
 let secondHand = document.querySelector(".second");
 
 function tick(h, m, s) {
+    console.log("tick ", h, m, s)
     h = h == 0 ? 12 : h % 12;
 
     let hh = h.toString().padStart(2, "0");
