@@ -2,15 +2,58 @@ name: Build Wails App for Raspberry Pi (ARM64)
 
 on:
   push:
-    branches: [master]
+    branches:
+      - '**'
   workflow_dispatch:
 
 jobs:
+  determine-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      is_prerelease: ${{ steps.set-prerelease.outputs.is_prerelease }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Fetch branch or PR commit
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            git fetch origin +refs/heads/${{ github.head_ref }}:refs/remotes/origin/${{ github.head_ref }}
+            git checkout refs/remotes/origin/${{ github.head_ref }}
+          else
+            git checkout ${{ github.ref }}
+          fi
+
+      - id: get-version
+        run: |
+          version=$(git describe --always --dirty --tags | egrep -o '([0-9]+\.){1,2}[0-9]?[a-zA-Z0-9-]+')
+          echo "version=$version" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - id: set-prerelease
+        run: |
+          version="${{ steps.get-version.outputs.version }}"
+          if [[ "$version" == *"-g"* ]] || [[ "$version" == *"-dirty"* ]]; then
+            prerelease=true
+          else
+            prerelease=false
+          fi
+          echo "is_prerelease=$prerelease" >> $GITHUB_ENV
+          echo "is_prerelease=$prerelease" >> $GITHUB_OUTPUT
+        shell: bash
+
   build-arm64:
+    needs: determine-version
     runs-on: ubuntu-22.04-arm
     env:
       GOPRIVATE: github.com/jetclock/*
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,19 +74,29 @@ jobs:
       - name: Install GTK & WebKit deps for Wails
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libgtk-3-dev libwebkit2gtk-4.0-dev
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - name: Build Wails app
+      - name: Build Wails app for arm64
+        env:
+          PATH: "$PATH:$(go env GOPATH)/bin"
+          GOARCH: arm64
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          wails build
+          VERSION="${{ needs.determine-version.outputs.version }}"
+          IS_PRERELEASE="${{ needs.determine-version.outputs.is_prerelease }}"
+          echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
+
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            wails build -nosyncgomod -debug -devtools -platform linux/arm64 -ldflags "-X main.version=$VERSION"
+          else
+            wails build -nosyncgomod -platform linux/arm64 -ldflags "-X main.version=$VERSION"
+          fi
 
       - name: Upload built app
         uses: actions/upload-artifact@v4
         with:
-          name: jetclock
+          name: jetclock-${{ needs.determine-version.outputs.version }}-arm64
           path: build/bin/*

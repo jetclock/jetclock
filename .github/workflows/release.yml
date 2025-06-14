@@ -1,0 +1,96 @@
+name: Internal Release and Deploy
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  determine-version:
+    runs-on: ubuntu-22.04-arm
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      is_prerelease: ${{ steps.set-prerelease.outputs.is_prerelease }}
+      ref_name: ${{ steps.set-ref.outputs.ref_name }}
+      commit_sha: ${{ steps.set-ref.outputs.commit_sha }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history to include tags
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - id: get-version
+        run: |
+          version=$(git describe --always --dirty --tags | egrep -o '([0-9]+\.){1,2}[0-9]?[a-zA-Z0-9-]+')
+          echo "version=$version" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - id: set-prerelease
+        run: |
+          version="${{ steps.get-version.outputs.version }}"
+          if [[ "$version" == *"-dev"* ]] || [[ "$version" == *"-nightly"* ]] || [[ "$version" == *"-dirty"* ]]; then
+            prerelease=true
+          else
+            prerelease=false
+          fi
+          echo "is_prerelease=$prerelease" >> $GITHUB_ENV
+          echo "is_prerelease=$prerelease" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Set ref name and commit sha
+        id: set-ref
+        run: |
+          ref_name="${{ github.event.inputs.tag }}"
+          commit_sha=$(git rev-list -n 1 $ref_name)
+          echo "ref_name=$ref_name" >> $GITHUB_ENV
+          echo "ref_name=$ref_name" >> $GITHUB_OUTPUT
+          echo "commit_sha=$commit_sha" >> $GITHUB_ENV
+          echo "commit_sha=$commit_sha" >> $GITHUB_OUTPUT
+        shell: bash
+
+
+  download_and_upload_artifacts:
+    needs: determine-version
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VERSION: ${{ needs.determine-version.outputs.version }}
+      IS_PRERELEASE: ${{ needs.determine-version.outputs.is_prerelease }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        run: |
+          linux_run_id=$(gh run list \
+            --workflow build.yml \
+            --branch ${{ needs.determine-version.outputs.ref_name }} \
+            --json databaseId \
+            --jq '.[0].databaseId')
+          gh run download $linux_run_id --name jetclock-${{ env.VERSION }}-arm64 --dir ./artifact-download/jetclock
+      - name: List downloaded files
+        run: ls -R ./artifact-download
+
+      - name: Print version and prerelease values
+        run: |
+          echo "VERSION: $VERSION - ${{ env.VERSION }}"
+          echo "IS_PRERELEASE: $IS_PRERELEASE - ${{ env.IS_PRERELEASE }}"
+
+      - name: Upload Release Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifact-download/**/*.*
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ needs.determine-version.outputs.version }}
+          name: Release ${{ needs.determine-version.outputs.version }}
+          body: "Released from CICD ${{ needs.determine-version.outputs.version }}"
+          prerelease: ${{ needs.determine-version.outputs.is_prerelease }}
