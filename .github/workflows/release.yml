@@ -44,8 +44,8 @@ jobs:
       - name: Set ref name and commit sha
         id: set-ref
         run: |
-          ref_name="${{ github.event.inputs.tag }}"
-          commit_sha=$(git rev-list -n 1 $ref_name)
+          ref_name="${{ github.ref_name }}"
+          commit_sha=$(git rev-list -n 1 "$ref_name")
           echo "ref_name=$ref_name" >> $GITHUB_ENV
           echo "ref_name=$ref_name" >> $GITHUB_OUTPUT
           echo "commit_sha=$commit_sha" >> $GITHUB_ENV
