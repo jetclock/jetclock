@@ -1,13 +1,36 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "name": "preact-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
   },
+  "keywords": [],
+  "author": "Alex Walker",
   "devDependencies": {
-    "vite": "^3.0.7"
+    "@babel/core": "^7.16.5",
+    "@babel/plugin-transform-react-jsx": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.1.10",
+    "autoprefixer": "^10.4.21",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
+    "html-webpack-plugin": "^5.5.0",
+    "postcss": "^8.5.5",
+    "postcss-loader": "^8.1.1",
+    "style-loader": "^3.3.1",
+    "tailwindcss": "^4.1.10",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "@babel/preset-react": "^7.27.1",
+    "@heroicons/react": "^2.2.0",
+    "@splidejs/splide": "^4.1.4",
+    "framer-motion": "^12.18.1",
+    "preact": "^10.26.9",
+    "react-clock": "^6.0.0"
   }
 }

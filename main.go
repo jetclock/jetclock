@@ -61,14 +61,16 @@ func main() {
 	webserver.Start()
 	// Create application with options
 	err = wails.Run(&options.App{
-		Title:     "jetclock",
-		Width:     480,
-		Height:    480,
-		Frameless: true,
+		Title:         "jetclock",
+		Width:         480,
+		Height:        480,
+		Frameless:     true,
+		DisableResize: true,
 		//Fullscreen: true,
 		//Debug:      options.Debug{OpenInspectorOnStartup: true},
 		AssetServer: &assetserver.Options{
-			Assets: assets,
+			Assets:  assets,
+			Handler: NewAssetLoader(),
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnDomReady:       app.domReady,

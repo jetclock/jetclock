@@ -1,5 +1,5 @@
-// debug-bridge.js — include this as the very first <script> in your page:
 ;(function(){
+    console.log("loading debug bridge..")
     const origLog   = console.log.bind(console)
     const origWarn  = console.warn.bind(console)
     const origError = console.error.bind(console)

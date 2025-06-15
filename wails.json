@@ -4,10 +4,8 @@
   "outputfilename": "jetclock",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
-  "frontend:dev:watcher": "npm run dev",
-  "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "Alex Walker",
-    "email": "alex.walker@whiteops.com"
+    "email": "amlwwalker@gmail.com"
   }
 }
