@@ -74,8 +74,7 @@ jobs:
       - name: Install, git, GTK & WebKit deps
         run: |
           sudo apt-get update
-          sudo apt install gcc-aarch64-linux-gnu libc6-dev-arm64-cross git
-#          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev git  #for ubuntu-22.04-arm
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev git 
 
 
       - name: Install Wails CLI
