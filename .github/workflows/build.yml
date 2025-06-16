@@ -51,7 +51,7 @@ jobs:
 
   build-arm64:
     needs: determine-version
-    runs-on: ubuntu-latest #ubuntu-22.04-arm
+    runs-on: ubuntu-22.04-arm
     env:
       GOPRIVATE: github.com/jetclock/*
     steps:
@@ -71,17 +71,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install cross-compile toolchain & ARM64 CGO libs
-        run: |
-          sudo dpkg --add-architecture arm64
-          sudo apt update
-          sudo apt install -y \
-          gcc-aarch64-linux-gnu \
-          libc6-dev-arm64-cross \
-          libgtk-3-dev:arm64 \
-          libwebkit2gtk-4.0-dev:arm64 \
-          pkg-config:arm64
-
       - name: Install, git, GTK & WebKit deps
         run: |
           sudo apt-get update
@@ -100,37 +89,18 @@ jobs:
           cd frontend
           npm install
 
-      - name: Build Wails app for linux/arm64
-        shell: bash
+      - name: Build Wails app
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
-          # cross-compile toolchain
-          export CGO_ENABLED=1
-          export CC=aarch64-linux-gnu-gcc
-          export CXX=aarch64-linux-gnu-g++
-          export GOOS=linux
-          export GOARCH=arm64
-
           VERSION="${{ needs.determine-version.outputs.version }}"
           IS_PRERELEASE="${{ needs.determine-version.outputs.is_prerelease }}"
-          echo "🔨 Building for linux/arm64 (v${VERSION}, prerelease=${IS_PRERELEASE})"
+          echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
 
-          # Use Wails’s --platform flag to embed assets for arm64
-          wails build --clean --platform=linux/arm64 \
-            -debug -v 2 \
-            -ldflags "-X main.version=$VERSION"
-#      - name: Build Wails app
-#        run: |
-#          export PATH="$PATH:$(go env GOPATH)/bin"
-#          VERSION="${{ needs.determine-version.outputs.version }}"
-#          IS_PRERELEASE="${{ needs.determine-version.outputs.is_prerelease }}"
-#          echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
-#
-#          if [ "$IS_PRERELEASE" = "true" ]; then
-#            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
-#          else
-#            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
-#          fi
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
+          else
+            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
+          fi
 
       - name: Upload built app
         uses: actions/upload-artifact@v4
