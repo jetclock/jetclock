@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"flag"
+	"fmt"
 	"github.com/jetclock/jetclock-sdk/pkg/hotspot"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/update"
@@ -22,7 +23,13 @@ var (
 var assets embed.FS
 
 func main() {
+	showVersion := flag.Bool("version", false, "Print version and exit")
+	flag.Parse()
 
+	if *showVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 	if err := logger.InitLogger(logger.LogToFile | logger.LogToStdout); err != nil {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
@@ -59,6 +66,7 @@ func main() {
 		log.Fatalf("failed to create server: %v", err)
 	}
 	webserver.Start()
+	options.NewRGB(0, 0, 0)
 	// Create application with options
 	err = wails.Run(&options.App{
 		Title:         "jetclock",
@@ -72,7 +80,7 @@ func main() {
 			Assets:  assets,
 			Handler: NewAssetLoader(),
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		BackgroundColour: options.NewRGB(0, 0, 0),
 		OnDomReady:       app.domReady,
 		OnStartup:        wifi.onStartup,
 		Bind: []interface{}{

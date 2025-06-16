@@ -51,7 +51,7 @@ jobs:
 
   build-arm64:
     needs: determine-version
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-latest #runs-on: ubuntu-22.04-arm
     env:
       GOPRIVATE: github.com/jetclock/*
     steps:
@@ -95,9 +95,9 @@ jobs:
           echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
 
           if [ "$IS_PRERELEASE" = "true" ]; then
-            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
+            wails build -platform=linux/arm64 -debug -v 2 -ldflags "-X main.version=$VERSION"
           else
-            wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
+            wails build -platform=linux/arm64 -debug -v 2 -ldflags "-X main.version=$VERSION"
           fi
 
       - name: Upload built app
