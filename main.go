@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/jetclock/jetclock-sdk/pkg/hotspot"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
-	"github.com/jetclock/jetclock-sdk/pkg/update"
 	"log"
 	"os"
 
@@ -34,11 +33,6 @@ func main() {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
 	logger.Log.Info("Starting jetclock", "version", version)
-
-	err := update.AutoUpdate(version)
-	if err != nil {
-		logger.Log.Errorf("could not run update %w", err)
-	}
 
 	mode := flag.String("mode", "auto", "Mode to run: auto, connect or hotspot")
 	//interactive := flag.Bool("interactive", false, "Interactively choose network to forget (for 'forget' mode only)")

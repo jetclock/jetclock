@@ -103,8 +103,15 @@ jobs:
             wails build -debug -v 2 -ldflags "-X main.version=$VERSION"
           fi
 
+      - name: Zip built app for artifact
+        run: |
+          mkdir -p dist
+          cp build/bin/jetclock dist/jetclock
+          cd dist
+          zip jetclock-${{ needs.determine-version.outputs.version }}-arm64.zip jetclock
+
       - name: Upload built app
         uses: actions/upload-artifact@v4
         with:
           name: jetclock-${{ needs.determine-version.outputs.version }}-arm64
-          path: build/bin/*
+          path: dist/jetclock-${{ needs.determine-version.outputs.version }}-arm64.zip
