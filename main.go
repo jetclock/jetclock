@@ -23,6 +23,9 @@ var assets embed.FS
 
 func main() {
 	showVersion := flag.Bool("version", false, "Print version and exit")
+	mode := flag.String("mode", "auto", "Mode to run: auto, connect or hotspot")
+	//interactive := flag.Bool("interactive", false, "Interactively choose network to forget (for 'forget' mode only)")
+	//ssidToForget := flag.String("ssid", "", "SSID of the network to forget (for 'forget' mode only)")
 	flag.Parse()
 
 	if *showVersion {
@@ -33,11 +36,6 @@ func main() {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
 	logger.Log.Info("Starting jetclock", "version", version)
-
-	mode := flag.String("mode", "auto", "Mode to run: auto, connect or hotspot")
-	//interactive := flag.Bool("interactive", false, "Interactively choose network to forget (for 'forget' mode only)")
-	//ssidToForget := flag.String("ssid", "", "SSID of the network to forget (for 'forget' mode only)")
-	flag.Parse()
 
 	config := hotspot.DefaultConfig
 	if os.Getenv("JETCLOCK_PORT") != "" {
