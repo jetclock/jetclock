@@ -67,14 +67,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download artifacts
+      - name: Download artifact for release
         run: |
+          VERSION="${{ needs.determine-version.outputs.version }}"
           linux_run_id=$(gh run list \
             --workflow build.yml \
             --branch ${{ needs.determine-version.outputs.ref_name }} \
             --json databaseId \
             --jq '.[0].databaseId')
-          gh run download $linux_run_id --name jetclock-${{ env.VERSION }}-arm64 --dir ./artifact-download/jetclock
+          gh run download "$linux_run_id" \
+            --name "jetclock-${VERSION}-linux-arm64.zip" \
+            --dir ./artifact-download/jetclock
+
       - name: List downloaded files
         run: ls -R ./artifact-download
 
@@ -86,7 +90,7 @@ jobs:
       - name: Upload Release Artifacts
         uses: softprops/action-gh-release@v2
         with:
-          files: ./artifact-download/**/*.*
+          files: ./artifact-download/jetclock/jetclock-${{ env.VERSION }}-linux-arm64.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ needs.determine-version.outputs.version }}
           name: Release ${{ needs.determine-version.outputs.version }}

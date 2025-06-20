@@ -105,13 +105,15 @@ jobs:
 
       - name: Zip built app for artifact
         run: |
+          VERSION="${{ needs.determine-version.outputs.version }}"
+          ZIP_NAME="jetclock-${VERSION}-linux-arm64.zip"
           mkdir -p dist
           cp build/bin/jetclock dist/jetclock
           cd dist
-          zip jetclock-${{ needs.determine-version.outputs.version }}-arm64.zip jetclock
+          zip "$ZIP_NAME" jetclock
 
       - name: Upload built app
         uses: actions/upload-artifact@v4
         with:
-          name: jetclock-${{ needs.determine-version.outputs.version }}-arm64
-          path: dist/jetclock-${{ needs.determine-version.outputs.version }}-arm64.zip
+          name: jetclock-${{ needs.determine-version.outputs.version }}-linux-arm64.zip
+          path: dist/jetclock-${{ needs.determine-version.outputs.version }}-linux-arm64.zip
