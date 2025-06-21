@@ -30,7 +30,7 @@ jobs:
       - id: set-prerelease
         run: |
           version="${{ steps.get-version.outputs.version }}"
-          if [[ "$version" == *"-dev"* ]] || [[ "$version" == *"-nightly"* ]] || [[ "$version" == *"-dirty"* ]]; then
+          if [[ "$version" == *"-g"* ]] || [[ "$version" == *"-dirty"* ]]; then
             prerelease=true
           else
             prerelease=false
@@ -84,8 +84,9 @@ jobs:
 
       - name: Print version and prerelease values
         run: |
+          IS_PRERELEASE="${{ needs.determine-version.outputs.is_prerelease }}"
           echo "VERSION: $VERSION - ${{ env.VERSION }}"
-          echo "IS_PRERELEASE: $IS_PRERELEASE - ${{ env.IS_PRERELEASE }}"
+          echo "Building for ARM64 with version $VERSION (pre-release: $IS_PRERELEASE)"
 
       - name: Upload Release Artifacts
         uses: softprops/action-gh-release@v2

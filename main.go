@@ -28,7 +28,6 @@ func main() {
 	//ssidToForget := flag.String("ssid", "", "SSID of the network to forget (for 'forget' mode only)")
 	flag.Parse()
 
-	fmt.Println("Jetclock v" + version)
 	if *showVersion {
 		fmt.Println(version)
 		os.Exit(0)
