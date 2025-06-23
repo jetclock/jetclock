@@ -21,13 +21,16 @@ jobs:
         run: git fetch --tags
 
       - id: get-version
+        name: Generate version
         run: |
-          version=$(git describe --always --dirty --tags | egrep -o '([0-9]+\.){1,2}[0-9]?[a-zA-Z0-9-]+')
+          version=$(git describe --tags --dirty)
+          echo "version -- $version"
           echo "version=$version" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_OUTPUT
         shell: bash
 
       - id: set-prerelease
+        name: Set pre release
         run: |
           version="${{ steps.get-version.outputs.version }}"
           if [[ "$version" == *"-g"* ]] || [[ "$version" == *"-dirty"* ]]; then
