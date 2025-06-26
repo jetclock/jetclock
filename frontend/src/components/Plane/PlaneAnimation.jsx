@@ -1,15 +1,31 @@
 import { h } from 'preact';
+import {useEffect, useRef} from "preact/hooks";
 
-export const PlaneAnimation = () => {
+export const PlaneAnimation = ({ onFinish = () => {} }) => {
+    const splashRef = useRef(null);
+
+    useEffect(() => {
+        const node = splashRef.current;
+        if (!node) return;
+
+        // Expect 2 animations: #splash and .anim
+        let pending = 2;
+
+        const done = () => {
+            pending -= 1;
+            if (pending === 0) onFinish();   // both finished
+        };
+
+        node.addEventListener('animationend', done);
+        return () => node.removeEventListener('animationend', done);
+    }, [onFinish]);
+
     return (
         <div
-            className="z-50 absolute top-0 left-0 overflow-hidden"
-            style={{
-                width: "480px",
-                height: "480px",
-            }}
+            className="absolute top-0 left-0 overflow-hidden"
+            style={{ width: 480, height: 480 }}
         >
-            <div id="splash">
+            <div id="splash" ref={splashRef}>
                 <div className="anim">
                     <div id="loader">
                         <svg version="1.1" width="120px" height="140px" viewBox="0 0 60 70">
@@ -51,5 +67,3 @@ export const PlaneAnimation = () => {
         </div>
     );
 };
-
-export default PlaneAnimation;
