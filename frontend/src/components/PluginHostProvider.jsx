@@ -69,7 +69,7 @@ export default function PluginHostProvider({ children }) {
 
         // Load the debug-bridge and pluginHost.js
         const pluginHostScript = document.createElement("script");
-        pluginHostScript.src = "/src/debug-bridge.js";
+        pluginHostScript.src = "/src/utils/debug-bridge.js";
         pluginHostScript.async = true;
         document.body.appendChild(pluginHostScript);
 

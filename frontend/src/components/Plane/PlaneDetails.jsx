@@ -6,6 +6,7 @@ import { PlaneAnimation } from './PlaneAnimation';
 
 import { computeBearing, estimateNewPosition } from '../../utils/geo';
 import { USER_LAT, USER_LON, USER_HEADING } from '../../utils/temp_consts';
+import SystemIDLabel from "../SystemID";
 
 export default function PlaneDetails({ planeData }) {
     const [arrowRotation, setArrowRotation] = useState(0);
@@ -61,33 +62,34 @@ export default function PlaneDetails({ planeData }) {
     return (
         <div className="relative w-full h-full bg-black flex items-center flex-col gap-6 text-white">
             <PlaneAnimation />
-            <div className="flex flex-col items-center justify-center h-full">
-                <motion.div
-                    animate={{ rotate: arrowRotation }}
-                    transition={{ type: 'spring', stiffness: 60, damping: 20, duration: 1.5 }}
-                >
-                    <ChevronUpIcon className="w-48 h-48 text-white" />
-                </motion.div>
+            <SystemIDLabel />
+            {/*<div className="flex flex-col items-center justify-center h-full">*/}
+            {/*    <motion.div*/}
+            {/*        animate={{ rotate: arrowRotation }}*/}
+            {/*        transition={{ type: 'spring', stiffness: 60, damping: 20, duration: 1.5 }}*/}
+            {/*    >*/}
+            {/*        <ChevronUpIcon className="w-48 h-48 text-white" />*/}
+            {/*    </motion.div>*/}
 
-                <div className="text-5xl font-semibold text-center mt-4">
-                    {planeData?.route?.flightroute?.origin?.municipality || planeData?.callsign}
-                </div>
-                <div className="text-xl mt-3">
-                    {planeData?.route?.flightroute?.origin?.country_name || planeData?.icao}
-                </div>
-                <div className="text-md mt-3 opacity-80">
-                    {(planeData?.speed * 2.23694).toFixed(0)} mph &nbsp;&nbsp;&nbsp;
-                    {planeData?.altitude} ft
-                </div>
-            </div>
+            {/*    <div className="text-5xl font-semibold text-center mt-4">*/}
+            {/*        {planeData?.route?.flightroute?.origin?.municipality || planeData?.callsign}*/}
+            {/*    </div>*/}
+            {/*    <div className="text-xl mt-3">*/}
+            {/*        {planeData?.route?.flightroute?.origin?.country_name || planeData?.icao}*/}
+            {/*    </div>*/}
+            {/*    <div className="text-md mt-3 opacity-80">*/}
+            {/*        {(planeData?.speed * 2.23694).toFixed(0)} mph &nbsp;&nbsp;&nbsp;*/}
+            {/*        {planeData?.altitude} ft*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
-            <div className="h-20 w-full bg-white flex justify-center items-center">
-                <img
-                    src={`/assets/public/images/logos/${airlineCode}.png`}
-                    className="w-32 h-32 object-contain"
-                    alt="Airline logo"
-                />
-            </div>
+            {/*<div className="h-20 w-full bg-white flex justify-center items-center">*/}
+            {/*    <img*/}
+            {/*        src={`/assets/public/images/logos/${airlineCode}.png`}*/}
+            {/*        className="w-32 h-32 object-contain"*/}
+            {/*        alt="Airline logo"*/}
+            {/*    />*/}
+            {/*</div>*/}
         </div>
     );
 }

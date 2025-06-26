@@ -12,12 +12,14 @@ import (
 	"path/filepath"
 	"reflect"
 	rt "runtime"
+	"strings"
 )
 
 // App struct
 type App struct {
-	ctx  context.Context
-	home string
+	ctx      context.Context
+	home     string
+	SystemID string
 }
 
 // NewApp creates a new App application struct
@@ -26,9 +28,16 @@ func NewApp() *App {
 	if err != nil {
 		log.Fatal("no home directory", err)
 	}
-	return &App{
+	a := App{
 		home: dir,
 	}
+	piSerial, err := getPiSerial()
+	if err == nil {
+		a.SystemID = piSerial
+	} else {
+		a.SystemID = "123"
+	}
+	return &a
 }
 
 // startup is called when the app starts. The context is saved
@@ -82,6 +91,9 @@ func (a *App) domReady(ctx context.Context) {
 
 	// Load plugins from './plugins'
 	pm.Startup(ctx, filepath.Join(a.home, ".jetclock", "apps"))
+}
+func (a *App) GetSystemID() string {
+	return a.SystemID
 }
 
 // WailsEmitter implements pluginmanager.EventEmitter via Wails
@@ -158,4 +170,23 @@ func debugBridge(ctx context.Context) {
 			logger.Log.Info("frontend", "msg", msg)
 		}
 	})
+}
+
+func getPiSerial() (string, error) {
+	data, err := os.ReadFile("/proc/cpuinfo")
+	if err != nil {
+		return "", err
+	}
+
+	lines := strings.Split(string(data), "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "Serial") {
+			parts := strings.Split(line, ":")
+			if len(parts) == 2 {
+				return strings.TrimSpace(parts[1]), nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("serial not found")
 }

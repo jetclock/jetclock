@@ -1,8 +1,7 @@
 import { h, Fragment } from 'preact';
 import { render } from 'preact';
 import {useEffect, useRef, useState} from 'preact/hooks';
-import "./debug-bridge";
-// in index.js or Home.js
+import "./utils/debug-bridge";
 import '@splidejs/splide/dist/css/splide.min.css';
 import Dashboard from "./components/Dashboard";
 import SlideHolder from "./components/SlideHolder";
@@ -22,7 +21,7 @@ export default function Home() {
     const [slides, setSlides] = useState([
         {
             id: "time",
-            component: <Dashboard />,
+            component: null,
         },
         // { id: "moon", component: <Moon /> },
         // { id: "sun", component: <Sun /> },
@@ -73,6 +72,7 @@ export default function Home() {
                     <PlaneDetails planeData={statePlaneData} />
                 </div>
             )}
+            {/*<SystemIDLabel></SystemIDLabel>*/}
             {/*{new Date().getMonth() === 11 && (*/}
             {/*    <Snowfall snowflakeCount={55} speed={[0.5, 1.5]} />*/}
             {/*)}*/}
