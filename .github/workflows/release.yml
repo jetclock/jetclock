@@ -23,7 +23,12 @@ jobs:
       - id: get-version
         name: Generate version
         run: |
-          version=$(git describe --tags --match "v[0-9]*" --first-parent --dirty)
+          version=$(git describe \
+                      --tags \
+                      --first-parent \
+                      --dirty \
+                      --match "v[0-9]*.[0-9]*.[0-9]*" \
+                      --exclude "v*-*-*")
           echo "version -- $version"
           echo "version=$version" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_OUTPUT
