@@ -5,3 +5,7 @@
 export function GetSystemID() {
   return window['go']['main']['App']['GetSystemID']();
 }
+
+export function GetVersion() {
+  return window['go']['main']['App']['GetVersion']();
+}

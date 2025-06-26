@@ -95,6 +95,9 @@ func (a *App) domReady(ctx context.Context) {
 func (a *App) GetSystemID() string {
 	return a.SystemID
 }
+func (a *App) GetVersion() string {
+	return version
+}
 
 // WailsEmitter implements pluginmanager.EventEmitter via Wails
 type WailsEmitter struct {
