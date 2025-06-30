@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/pluginmanager"
@@ -10,9 +9,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"reflect"
 	rt "runtime"
+	"strconv"
 	"strings"
+	"syscall"
 )
 
 // App struct
@@ -45,52 +45,12 @@ func NewApp() *App {
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 	debugBridge(ctx)
-	// Create PluginManager
-	pm := pluginmanager.NewPluginManager()
-
-	// Create Wails emitter and listener
-	emitter := &WailsEmitter{ctx: ctx}
-	listener := &WailsListener{ctx: ctx, pm: pm}
-
-	// Configure PluginManager to use Wails events
-	pm.SetEventSystem(emitter, listener)
-
-	// Forward any incoming "plugin:message" events into HandlePluginMessage
-	listener.On(pluginmanager.PluginMessage, func(args ...interface{}) {
-		fmt.Print("args ", len(args), reflect.TypeOf(args))
-		fmt.Println(args...)
-		if len(args) == 0 {
-			return
+	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
+	if err == nil {
+		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
+			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
 		}
-		var msgMap map[string]interface{}
-		// Case 1: argument is already a map
-		if m, ok := args[0].(map[string]interface{}); ok {
-			msgMap = m
-		} else if arr, ok := args[0].([]interface{}); ok && len(arr) > 0 {
-			// Case 2: argument is a slice; take first element if it's a map
-			if m2, ok2 := arr[0].(map[string]interface{}); ok2 {
-				msgMap = m2
-			} else {
-				fmt.Println("case2: arg isn't a map")
-				return
-			}
-		} else if s, ok := args[0].(string); ok {
-			// Argument is a JSON string: unmarshal into map
-			if err := json.Unmarshal([]byte(s), &msgMap); err != nil {
-				runtime.LogErrorf(ctx, "plugin:message unmarshal error: %v", err)
-				return
-			}
-		} else {
-			fmt.Println("case1: arg isn't a map")
-			return
-		}
-		fmt.Println("raw -- ", msgMap)
-
-		pm.HandlePluginMessage(msgMap)
-	})
-
-	// Load plugins from './plugins'
-	pm.Startup(ctx, filepath.Join(a.home, ".jetclock", "apps"))
+	}
 }
 func (a *App) GetSystemID() string {
 	return a.SystemID
