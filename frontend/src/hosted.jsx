@@ -7,7 +7,7 @@ function Loader() {
     const [systemID, setSystemID] = useState(null);
     const [version, setVersion] = useState(null);
     const [animDone, setAnimDone] = useState(false);
-
+    const [startAnim, setStartAnim] = useState(false);
     // 1. ask Go for the SystemID
     useEffect(() => {
         window.go.main.App.GetSystemID()
@@ -24,6 +24,13 @@ function Loader() {
             });
     }, []);
 
+    useEffect(() => {
+        window.runtime.EventsOn('animation-start', () => {
+            setStartAnim(true)
+        });
+        window.runtime.EventsEmit('animation-ready');
+
+    }, []);
     // 2. when BOTH animation finished and ID received → redirect
     useEffect(() => {
         if (animDone && systemID) {
@@ -44,9 +51,8 @@ function Loader() {
                 justifyContent: 'center'
             }}
         >
-            <PlaneAnimation onFinish={() => setAnimDone(true)} />
+            <PlaneAnimation startAmin={startAnim} onFinish={() => setAnimDone(true)} />
             <p style={{ marginTop: 24 }}>
-                {systemID ? 'Launching clock…' : 'Fetching System ID…'}
             </p>
         </div>
     );

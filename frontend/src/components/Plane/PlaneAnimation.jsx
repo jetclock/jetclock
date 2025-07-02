@@ -1,31 +1,31 @@
 import { h } from 'preact';
 import {useEffect, useRef} from "preact/hooks";
 
-export const PlaneAnimation = ({ onFinish = () => {} }) => {
+export const PlaneAnimation = ({ startAnim = false, onFinish = () => {} }) => {
     const splashRef = useRef(null);
 
     useEffect(() => {
         const node = splashRef.current;
-        if (!node) return;
+        if (!startAnim || !node) return;          // do nothing until we’re asked to startAnim
 
-        // Expect 2 animations: #splash and .anim
-        let pending = 2;
-
+        let pending = 2;                      // #splash + .anim
         const done = () => {
-            pending -= 1;
-            if (pending === 0) onFinish();   // both finished
+            if (--pending === 0) onFinish();
         };
 
         node.addEventListener('animationend', done);
         return () => node.removeEventListener('animationend', done);
-    }, [onFinish]);
+    }, [startAnim, onFinish]);
+
+
 
     return (
         <div
             className="absolute top-0 left-0 overflow-hidden"
             style={{ width: 480, height: 480 }}
         >
-            <div id="splash" ref={splashRef}>
+            {/* ⚠️  Add/omit “run” depending on `startAnim` */}
+            <div id="splash" ref={splashRef} className={startAnim ? 'run' : ''}>
                 <div className="anim">
                     <div id="loader">
                         <svg version="1.1" width="120px" height="140px" viewBox="0 0 60 70">

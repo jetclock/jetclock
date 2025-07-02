@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 // App struct
@@ -46,12 +47,16 @@ func (a *App) domReady(ctx context.Context) {
 	debugBridge(ctx)
 	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
 	if err == nil {
-		logger.Log.Infof("signalling to: %s app is ready", string(data))
-		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
-			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
-		} else {
-			logger.Log.Infof("signall sent to: %s", string(data))
-		}
+		runtime.EventsOn(ctx, "animation-ready", func(optionalData ...interface{}) {
+			logger.Log.Infof("signalling to: %s app is ready", string(data))
+			if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
+				_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
+			} else {
+				logger.Log.Infof("signall sent to: %s", string(data))
+			}
+			time.Sleep(1 * time.Second)
+			runtime.EventsEmit(ctx, "animation-start")
+		})
 	}
 }
 func (a *App) GetSystemID() string {

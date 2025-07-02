@@ -53,17 +53,20 @@ html, body {
   height: 200px;
 }
 
+/* default: *no* animation */
 #splash .anim {
   height: 100%;
   position: absolute;
   left: 50%;
   width: 100px;
   transform: translate(-50%, 100%);
-  animation: loader 4s linear;
-  animation-fill-mode: forwards;
-  -webkit-animation-fill-mode: forwards;
+  animation: none;                     /* ← stops it */
 }
 
+/* when #splash gets the “run” class → play */
+#splash.run .anim {
+  animation: loader 4s linear forwards;
+}
 .custom-clock {
   display: flex;
   justify-content: center;
