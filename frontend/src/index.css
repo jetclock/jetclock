@@ -53,20 +53,17 @@ html, body {
   height: 200px;
 }
 
-/* default: *no* animation */
 #splash .anim {
   height: 100%;
   position: absolute;
   left: 50%;
   width: 100px;
   transform: translate(-50%, 100%);
-  animation: none;                     /* ← stops it */
+  animation: loader 4s linear;
+  animation-fill-mode: forwards;
+  -webkit-animation-fill-mode: forwards;
 }
 
-/* when #splash gets the “run” class → play */
-#splash.run .anim {
-  animation: loader 4s linear forwards;
-}
 .custom-clock {
   display: flex;
   justify-content: center;
@@ -114,29 +111,4 @@ html, body {
   100% {
     transform: translate(0%, -100%);
   }
-}
-/* src/index.css OR src/components/WifiStatus.css */
-#wifi-mode {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  overflow: hidden;
-
-  transform:
-          translate(-50%, -50%)
-          rotate(135deg)
-          translateY(-50px)
-          rotate(-135deg);
-  transform-origin: center center;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-  background: transparent;
-  box-shadow: none;
 }

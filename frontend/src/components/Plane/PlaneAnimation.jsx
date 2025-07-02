@@ -4,27 +4,47 @@ import {useEffect, useRef} from "preact/hooks";
 export const PlaneAnimation = ({ startAnim = false, onFinish = () => {} }) => {
     const splashRef = useRef(null);
 
-    useEffect(() => {
-        const node = splashRef.current;
-        if (!startAnim || !node) return;          // do nothing until we’re asked to startAnim
 
-        let pending = 2;                      // #splash + .anim
-        const done = () => {
-            if (--pending === 0) onFinish();
+    useEffect(() => {
+        const splash = splashRef.current;           // #splash
+        const plane = splash?.querySelector('.anim'); // the plane element
+
+        if (!startAnim) {
+            console.log("[PlaneAnimation] startAnim is false, skipping setup");
+            return;
+        }
+        if (!splash || !plane) {
+            console.warn("[PlaneAnimation] Missing splash or plane element");
+            return;
+        }
+
+        let pending = 2;
+        console.log("[PlaneAnimation] Animation started, waiting for 2 events");
+
+        const done = (e) => {
+            pending -= 1;
+            console.log(`[PlaneAnimation] animationend on ${e.target.id || e.target.className}, remaining: ${pending}`);
+            if (pending === 0) {
+                console.log("[PlaneAnimation] All animations finished, calling onFinish()");
+                onFinish();
+            }
         };
 
-        node.addEventListener('animationend', done);
-        return () => node.removeEventListener('animationend', done);
+        splash.addEventListener('animationend', done);
+        plane.addEventListener('animationend', done);
+
+        return () => {
+            splash.removeEventListener('animationend', done);
+            plane.removeEventListener('animationend', done);
+            console.log("[PlaneAnimation] Cleaned up animation listeners");
+        };
     }, [startAnim, onFinish]);
-
-
-
     return (
         <div
             className="absolute top-0 left-0 overflow-hidden"
             style={{ width: 480, height: 480 }}
         >
-            {/* ⚠️  Add/omit “run” depending on `startAnim` */}
+            {/* give #splash the “run” class only when we’re ready */}
             <div id="splash" ref={splashRef} className={startAnim ? 'run' : ''}>
                 <div className="anim">
                     <div id="loader">

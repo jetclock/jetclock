@@ -36,7 +36,7 @@ function Loader() {
         if (animDone && systemID) {
             window.location.replace(`https://app.jetclock.io/clock/${systemID}?version=${version}`);
         }
-    }, [animDone, systemID]);
+    }, [animDone, systemID, version]);
 
     return (
         <div
@@ -51,7 +51,7 @@ function Loader() {
                 justifyContent: 'center'
             }}
         >
-            <PlaneAnimation startAmin={startAnim} onFinish={() => setAnimDone(true)} />
+            <PlaneAnimation startAnim={startAnim} onFinish={() => setAnimDone(true)} />
             <p style={{ marginTop: 24 }}>
             </p>
         </div>
