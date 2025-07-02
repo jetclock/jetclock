@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
-	"github.com/jetclock/jetclock-sdk/pkg/pluginmanager"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"os"
@@ -78,7 +77,6 @@ func (we *WailsEmitter) Emit(event string, data interface{}) {
 // WailsListener implements pluginmanager.EventListener via Wails
 type WailsListener struct {
 	ctx context.Context
-	pm  *pluginmanager.PluginManager
 }
 
 func (wl *WailsListener) On(event string, callback func(args ...interface{})) {

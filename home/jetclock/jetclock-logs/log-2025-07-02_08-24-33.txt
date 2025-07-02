@@ -1,0 +1,3 @@
+time=2025-07-02T08:24:33.772+01:00 level=INFO msg="📤 Logger initialized (mode=3)"
+time=2025-07-02T08:24:33.772+01:00 level=INFO msg="Log file path" file=home/jetclock/jetclock-logs/log-2025-07-02_08-24-33.txt
+time=2025-07-02T08:24:33.772+01:00 level=INFO msg="Starting jetclock" version=v0.0.1

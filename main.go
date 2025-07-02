@@ -29,7 +29,7 @@ func main() {
 		fmt.Println(version)
 		os.Exit(0)
 	}
-	if err := logger.InitLogger(logger.LogToFile | logger.LogToStdout); err != nil {
+	if err := logger.InitLogger(logger.LogToFile|logger.LogToStdout, "home/jetclock", ""); err != nil {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
 	logger.Log.Info("Starting jetclock", "version", version)
