@@ -32,8 +32,7 @@ func main() {
 	if err := logger.InitLogger(logger.LogToFile|logger.LogToStdout, "home/jetclock", ""); err != nil {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
-	logger.Log.Info("Starting jetclock", "version", version)
-
+	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
 	app := NewApp()
 
 	options.NewRGB(0, 0, 0)
