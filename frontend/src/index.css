@@ -9,17 +9,19 @@ html, body {
   height: 100%;
   width: 100%;
 }
+/* --------------- splash container ---------------- */
 #splash {
-  background: #000000;
+  background: #000;          /* star-field / solid black */
   background-repeat: repeat-y;
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  animation: splash 3s ease-in;
+  inset: 0;                  /* shorthand for top/left/width/height */
+  animation: none;           /* 🔸 OFF by default */
   animation-fill-mode: forwards;
-  -webkit-animation-fill-mode: forwards;
+}
+
+/* When React toggles class="run" → play the slide-up */
+#splash.run {
+  animation: splash 3s ease-in forwards;
 }
 
 #loader {
@@ -53,17 +55,19 @@ html, body {
   height: 200px;
 }
 
+/* ------------- DEFAULT: parked at bottom, NO animation ------------- */
 #splash .anim {
   height: 100%;
   position: absolute;
   left: 50%;
   width: 100px;
   transform: translate(-50%, 100%);
-  animation: loader 4s linear;
-  animation-fill-mode: forwards;
-  -webkit-animation-fill-mode: forwards;
+  animation: none;                           /* <- important */
 }
-
+/* ------------- When React adds class="run" to #splash -------------- */
+#splash.run .anim {
+  animation: loader 4s linear forwards;
+}
 .custom-clock {
   display: flex;
   justify-content: center;

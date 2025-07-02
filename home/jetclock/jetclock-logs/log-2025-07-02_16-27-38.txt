@@ -1,3 +1,0 @@
-time=2025-07-02T16:27:38.370+01:00 level=INFO msg="📤 Logger initialized (mode=3)"
-time=2025-07-02T16:27:38.370+01:00 level=INFO msg="Log file path" file=home/jetclock/jetclock-logs/log-2025-07-02_16-27-38.txt
-time=2025-07-02T16:27:38.371+01:00 level=INFO msg="📍 JetClock App started with PID 31724 - version %!(EXTRA string=v0.0.1)"
