@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -35,9 +36,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to init config: %v", err)
 	}
-	if err := logger.InitLogger(appConfig.LogLevel, filepath.Join("/home", "jetclock"), ""); err != nil {
-		log.Fatalf("Failed to init logger: %v", err)
+	if runtime.GOOS == "linux" {
+		if err := logger.InitLogger(appConfig.LogLevel, filepath.Join("/home", "jetclock"), ""); err != nil {
+			log.Fatalf("Failed to init logger: %v", err)
+		}
+	} else {
+		dir, _ := os.UserHomeDir()
+		if err := logger.InitLogger(appConfig.LogLevel, filepath.Join(dir, "dev", "jetclock"), ""); err != nil {
+			log.Fatalf("Failed to init logger: %v", err)
+		}
 	}
+
 	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
 	app := NewApp()
 
