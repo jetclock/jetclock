@@ -55,7 +55,7 @@ func (a *App) domReady(ctx context.Context) {
 				logger.Log.Infof("signall sent to: %s", string(data))
 			}
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(4 * time.Second)
 		runtime.EventsEmit(ctx, "animation-start")
 	})
 }
