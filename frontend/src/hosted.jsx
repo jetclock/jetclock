@@ -6,8 +6,6 @@ import './index.css';
 function Loader() {
     const [systemID, setSystemID] = useState(null);
     const [version, setVersion] = useState(null);
-    const [animDone, setAnimDone] = useState(false);
-    const [startAnim, setStartAnim] = useState(false);
     // 1. ask Go for the SystemID
     useEffect(() => {
         window.go.main.App.GetSystemID()
@@ -25,35 +23,13 @@ function Loader() {
     }, []);
 
     useEffect(() => {
-        window.runtime.EventsOn('animation-start', () => {
-            setStartAnim(true)
-        });
-        window.runtime.EventsEmit('animation-ready');
-
-    }, []);
-    // 2. when BOTH animation finished and ID received → redirect
-    useEffect(() => {
-        if (animDone && systemID) {
+        if (version && systemID) {
             window.location.replace(`https://app.jetclock.io/clock/${systemID}?version=${version}`);
         }
-    }, [animDone, systemID, version]);
+    }, [systemID, version]);
 
     return (
-        <div
-            style={{
-                background: '#000',
-                color: '#fff',
-                width: '100vw',
-                height: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}
-        >
-            <PlaneAnimation startAnim={startAnim} onFinish={() => setAnimDone(true)} />
-            <p style={{ marginTop: 24 }}>
-            </p>
+        <div>
         </div>
     );
 }
