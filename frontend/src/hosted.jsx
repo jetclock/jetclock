@@ -6,6 +6,8 @@ import './index.css';
 function Loader() {
     const [systemID, setSystemID] = useState(null);
     const [version, setVersion] = useState(null);
+    const [animDone, setAnimDone] = useState(false);
+    const [startAnim, setStartAnim] = useState(false);
     // 1. ask Go for the SystemID
     useEffect(() => {
         window.go.main.App.GetSystemID()
@@ -23,13 +25,21 @@ function Loader() {
     }, []);
 
     useEffect(() => {
-        if (version && systemID) {
+        window.runtime.EventsOn('animation-start', () => {
+            console.log("redirecting")
+        });
+        window.runtime.EventsEmit('animation-ready');
+    }, []);
+    // 2. when BOTH animation finished and ID received → redirect
+    useEffect(() => {
+        if (animDone && systemID) {
             window.location.replace(`https://app.jetclock.io/clock/${systemID}?version=${version}`);
         }
     }, [systemID, version]);
 
     return (
         <div>
+
         </div>
     );
 }
