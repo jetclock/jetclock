@@ -8,10 +8,6 @@ on:
       - '*'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   determine-version:
     runs-on: ubuntu-latest
@@ -68,34 +64,17 @@ jobs:
     runs-on: ubuntu-22.04-arm
     env:
       GOPRIVATE: github.com/jetclock/*
-      GIT_CONFIG_PARAMETERS: "'url.https://${{ secrets.GH_PAT_AW }}@github.com/.insteadof https://github.com/'"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Configure Git to use Personal Access Token for private modules
+        run: git config --global url."https://${{ secrets.BUILD_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-
-      - name: Configure Git and Go for private modules
-        run: |
-          # Configure Git to use PAT for private repos
-          git config --global url."https://${{ secrets.GH_PAT_AW }}@github.com/".insteadOf "https://github.com/"
-          git config --global url."https://${{ secrets.GH_PAT_AW }}@github.com/".insteadOf "git@github.com:"
-          
-          # Set up credential helper
-          git config --global credential.helper store
-          echo "https://${{ secrets.GH_PAT_AW }}:x-oauth-basic@github.com" > ~/.git-credentials
-          chmod 600 ~/.git-credentials
-          
-          # Clear Go module cache to force fresh downloads
-          go clean -modcache
-          
-          # Verify configuration
-          echo "Git config:"
-          git config --global --list | grep url
-          echo "GOPRIVATE: $GOPRIVATE"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -118,20 +97,6 @@ jobs:
         run: |
           cd frontend
           npm install
-
-      - name: Download private Go modules
-        run: |
-          echo "Downloading private modules..."
-          # Test access to the private repository
-          echo "Testing access to private repository..."
-          curl -H "Authorization: token ${{ secrets.GH_PAT_AW }}" \
-               -H "Accept: application/vnd.github.v3+json" \
-               https://api.github.com/repos/jetclock/jetclock-sdk
-          
-          # Download modules
-          go mod download
-          go mod tidy
-          echo "Private modules downloaded successfully"
 
       - name: Build Wails app
         run: |
