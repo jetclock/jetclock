@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/jetclock/jetclock-sdk/pkg/config"
+	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -28,16 +31,23 @@ func main() {
 		fmt.Println(version)
 		os.Exit(0)
 	}
+	appConfig, err := config.LoadConfig(filepath.Join("/home", "jetclock", ".config", "jetclock", "config.yaml"))
+	if err != nil {
+		log.Fatalf("Failed to init config: %v", err)
+	}
+	if err := logger.InitLogger(appConfig.LogLevel, filepath.Join("/home", "jetclock"), ""); err != nil {
+		dir, _ := os.UserHomeDir()
+		if err := logger.InitLogger(appConfig.LogLevel, filepath.Join(dir, "dev", "jetclock"), ""); err != nil {
+			log.Fatalf("Failed to init logger: %v", err)
+		}
+	}
 
-	// Initialize basic logging
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Printf("📍 JetClock App started with PID %d - version %s", os.Getpid(), version)
-
+	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
 	app := NewApp()
 
 	options.NewRGB(0, 0, 0)
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:         "jetclock",
 		Width:         480,
 		Height:        480,
