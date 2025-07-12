@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure Git to use Personal Access Token for private modules
-        run: git config --global url."https://${{ secrets.GH_PAT_AW }}@github.com/".insteadOf "https://github.com/"
+        run: git config --global url."https://${{ secrets.BUILD_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Test SDK Access
         run: |
@@ -77,7 +77,7 @@ jobs:
           
           # Test GitHub API access to the private repository
           echo "Testing GitHub API access..."
-          API_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token ${{ secrets.GH_PAT_AW }}" \
+          API_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token ${{ secrets.BUILD_TOKEN }}" \
                -H "Accept: application/vnd.github.v3+json" \
                https://api.github.com/repos/jetclock/jetclock-sdk)
           
@@ -92,7 +92,7 @@ jobs:
           else
             echo "❌ Failed to access jetclock-sdk repository via GitHub API"
             echo "HTTP Code: $HTTP_CODE"
-            echo "This indicates an authentication or permission issue with GH_PAT_AW"
+            echo "This indicates an authentication or permission issue with BUILD_TOKEN"
             exit 1
           fi
           
