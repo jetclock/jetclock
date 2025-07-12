@@ -37,7 +37,7 @@ func NewApp() *App {
 	if err == nil {
 		a.SystemID = piSerial
 	} else {
-		a.SystemID = "123"
+		a.SystemID = "000000005d34b088"
 	}
 	return &a
 }
