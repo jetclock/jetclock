@@ -65,36 +65,30 @@ func (a *App) GetVersion() string {
 	return version
 }
 
-// GetBrightness returns the current screen brightness (0-255)
+// GetBrightness returns the current screen brightness (0 or 1)
 func (a *App) GetBrightness() (int, error) {
-	// Try common backlight paths
-	paths := []string{
-		"/sys/class/backlight/backlight/brightness",
-		"/sys/class/backlight/rpi_backlight/brightness",
-		"/sys/class/backlight/panel0-backlight/brightness",
+	data, err := os.ReadFile("/sys/class/backlight/backlight/brightness")
+	if err != nil {
+		return 0, fmt.Errorf("failed to read brightness: %v", err)
 	}
 
-	var lastErr error
-	for _, path := range paths {
-		data, err := os.ReadFile(path)
-		if err == nil {
-			brightness, err := strconv.Atoi(strings.TrimSpace(string(data)))
-			if err != nil {
-				return 0, fmt.Errorf("failed to parse brightness from %s: %v", path, err)
-			}
-			return brightness, nil
-		}
-		lastErr = err
+	brightness, err := strconv.Atoi(strings.TrimSpace(string(data)))
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse brightness: %v", err)
 	}
 
-	// Return a more user-friendly error message
-	return 0, fmt.Errorf("brightness control not available on this system: %v", lastErr)
+	// Validate that brightness is 0 or 1
+	if brightness != 0 && brightness != 1 {
+		return 0, fmt.Errorf("invalid brightness value: %d (expected 0 or 1)", brightness)
+	}
+
+	return brightness, nil
 }
 
-// SetBrightness sets the screen brightness (0-255)
+// SetBrightness sets the screen brightness (0 or 1)
 func (a *App) SetBrightness(brightness int) error {
-	if brightness < 0 || brightness > 255 {
-		return fmt.Errorf("brightness must be between 0 and 255")
+	if brightness != 0 && brightness != 1 {
+		return fmt.Errorf("brightness must be 0 or 1")
 	}
 
 	cmd := exec.Command("sudo", "sh", "-c", fmt.Sprintf("echo %d > /sys/class/backlight/backlight/brightness", brightness))
