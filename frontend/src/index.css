@@ -2,117 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow: hidden;
   height: 100%;
   width: 100%;
-}
-/* --------------- splash container ---------------- */
-#splash {
-  background: #000;          /* star-field / solid black */
-  background-repeat: repeat-y;
-  position: absolute;
-  inset: 0;                  /* shorthand for top/left/width/height */
-  animation: none;           /* 🔸 OFF by default */
-  animation-fill-mode: forwards;
-}
-
-/* When React toggles class="run" → play the slide-up */
-#splash.run {
-  animation: splash 3s ease-in forwards;
-}
-
-#loader {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translate(-50%, 0);
-}
-
-#loader:after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  margin-left: -8px;
-  bottom: -170px;
-  width: 3px;
-  background: #fff;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 100%);
-  height: 200px;
-}
-
-#loader:before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  margin-left: 8px;
-  bottom: -190px;
-  width: 3px;
-  background: #000;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, .2) 50%, rgba(0, 0, 0, 0) 100%);
-  height: 200px;
-}
-
-/* ------------- DEFAULT: parked at bottom, NO animation ------------- */
-#splash .anim {
-  height: 100%;
-  position: absolute;
-  left: 50%;
-  width: 100px;
-  transform: translate(-50%, 100%);
-  animation: none;                           /* <- important */
-}
-/* ------------- When React adds class="run" to #splash -------------- */
-#splash.run .anim {
-  animation: loader 4s linear forwards;
-}
-.custom-clock {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 480px;
-  height: 480px;
-  background-color: black;
-  border-radius: 50%;
-}
-
-.react-clock .react-clock__hand__body,
-.react-clock .react-clock__mark__body {
-  background-color: white;
-}
-
-
-.react-clock__face {
-  background: black;
-}
-
-
-@keyframes loader {
-  0% {
-    transform: translate(-50%, 110%);
-  }
-
-  30% {
-    transform: translate(-50%, 50%);
-  }
-
-  100% {
-    transform: translate(-50%, 0%);
-  }
-}
-
-@keyframes splash {
-  0% {
-    transform: translate(0%, 0%);
-  }
-
-  50% {
-    transform: translate(0%, 0%);
-  }
-
-  100% {
-    transform: translate(0%, -100%);
-  }
+  background-color: #000;
 }
