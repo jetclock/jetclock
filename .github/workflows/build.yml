@@ -76,11 +76,26 @@ jobs:
         run: |
           git config --global url."https://${{ secrets.GH_PAT_AW }}@github.com/".insteadOf "https://github.com/"
           git config --global url."https://${{ secrets.GH_PAT_AW }}@github.com/".insteadOf "git@github.com:"
+          echo "Git configuration applied"
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+
+      - name: Configure Go to use Git credentials
+        run: |
+          git config --global credential.helper store
+          echo "https://${{ secrets.GH_PAT_AW }}:x-oauth-basic@github.com" > ~/.git-credentials
+          chmod 600 ~/.git-credentials
+
+      - name: Verify Git configuration and clear Go cache
+        run: |
+          echo "Git config:"
+          git config --global --list | grep url
+          echo "Clearing Go module cache..."
+          go clean -modcache
+          echo "Go module cache cleared"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
