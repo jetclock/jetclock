@@ -42,7 +42,7 @@ func main() {
 			log.Fatalf("Failed to init logger: %v", err)
 		}
 	}
-
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
 	app := NewApp()
 

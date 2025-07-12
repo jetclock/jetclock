@@ -6,9 +6,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
+	rt "runtime"
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -44,17 +47,19 @@ func NewApp() *App {
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 	debugBridge(ctx)
-	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
-	if err == nil {
-		logger.Log.Infof("signalling to: %s app is ready", string(data))
-		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
-			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
-		} else {
-			logger.Log.Error("failed to convert pid", "err", err)
+	runtime.EventsOn(ctx, "animation-ready", func(optionalData ...interface{}) {
+		data, err := os.ReadFile("/tmp/jetclock-updater.pid")
+		if err == nil {
+			logger.Log.Infof("signalling to: %s app is ready", string(data))
+			if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
+				_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
+			} else {
+				logger.Log.Infof("signall sent to: %s", string(data))
+			}
 		}
-	} else {
-		logger.Log.Error("failed to read /tmp/jetclock-updater.pid", "err", err)
-	}
+		time.Sleep(4 * time.Second)
+		runtime.EventsEmit(ctx, "animation-start")
+	})
 }
 
 func (a *App) GetSystemID() string {
@@ -99,6 +104,50 @@ func (a *App) SetBrightness(brightness int) error {
 
 	logger.Log.Infof("Set brightness to %d", brightness)
 	return nil
+}
+
+// WailsEmitter implements pluginmanager.EventEmitter via Wails
+type WailsEmitter struct {
+	ctx context.Context
+}
+
+func (we *WailsEmitter) Emit(event string, data interface{}) {
+	fmt.Println("emit:", event, data)
+	whoCalledMe()
+	runtime.EventsEmit(we.ctx, event, data)
+}
+
+// WailsListener implements pluginmanager.EventListener via Wails
+type WailsListener struct {
+	ctx context.Context
+}
+
+func (wl *WailsListener) On(event string, callback func(args ...interface{})) {
+	runtime.EventsOn(wl.ctx, event, func(args ...interface{}) {
+		callback(args...)
+	})
+}
+
+func whoCalledMe() {
+	pc, file, line, ok := rt.Caller(2)
+	if !ok {
+		fmt.Println("Could not retrieve caller information")
+		return
+	}
+
+	// Use runtime.FuncForPC to get a *Func, then .Name() to retrieve the function's name.
+	fn := rt.FuncForPC(pc)
+	funcName := "unknown"
+	if fn != nil {
+		funcName = fn.Name()
+		// If you want just the base of the function name (no full package path):
+		funcName = filepath.Ext(funcName)
+		if len(funcName) > 0 {
+			funcName = funcName[1:] // strip leading dot
+		}
+	}
+
+	fmt.Printf("Called by %s (at %s:%d)\n", funcName, file, line)
 }
 
 func debugBridge(ctx context.Context) {
