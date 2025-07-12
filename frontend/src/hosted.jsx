@@ -148,6 +148,7 @@ function Loader() {
         if (systemID && version) {
             console.log('Setting loading to false');
             setLoading(false);
+            window.runtime.EventsEmit('app-ready');
         }
     }, [systemID, version]);
 

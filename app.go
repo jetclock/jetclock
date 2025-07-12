@@ -46,8 +46,8 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
-	debugBridge(ctx)
-	runtime.EventsOn(ctx, "animation-ready", func(optionalData ...interface{}) {
+	// debugBridge(ctx)
+	runtime.EventsOn(ctx, "app-ready", func(optionalData ...interface{}) {
 		data, err := os.ReadFile("/tmp/jetclock-updater.pid")
 		if err == nil {
 			logger.Log.Infof("signalling to: %s app is ready", string(data))
@@ -58,7 +58,7 @@ func (a *App) domReady(ctx context.Context) {
 			}
 		}
 		time.Sleep(4 * time.Second)
-		runtime.EventsEmit(ctx, "animation-start")
+		// runtime.EventsEmit(ctx, "app-start")
 	})
 }
 
