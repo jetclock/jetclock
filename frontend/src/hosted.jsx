@@ -41,7 +41,7 @@ function Loader() {
                 console.warn('Brightness control not available:', error.message);
                 // Set brightness to a default value to prevent undefined behavior
                 if (brightnessCheckActive) {
-                    setBrightness(255);
+                    setBrightness(1);
                 }
             }
         };
@@ -100,16 +100,16 @@ function Loader() {
                 if (clockStatus.screenon && brightness === 0) {
                     // Screen should be on but brightness is 0 - turn on screen
                     try {
-                        await window.go.main.App.SetBrightness(255);
+                        await window.go.main.App.SetBrightness(1);
                         if (isActive) {
-                            setBrightness(255);
-                            lastAction = `${clockStatus.screenon}-255`;
+                            setBrightness(1);
+                            lastAction = `${clockStatus.screenon}-1`;
                             console.log('Turning on screen');
                         }
                     } catch (error) {
                         console.warn('Failed to turn on screen (brightness control not available):', error.message);
                         // Continue without brightness control
-                        lastAction = `${clockStatus.screenon}-255`;
+                        lastAction = `${clockStatus.screenon}-1`;
                     }
                 } else if (!clockStatus.screenon && brightness > 0) {
                     // Screen should be off but brightness > 0 - turn off screen
