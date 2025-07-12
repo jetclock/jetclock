@@ -136,6 +136,24 @@ jobs:
           fi
           
           echo "🎉 All SDK access tests passed!"
+          
+          # Test Go module download directly
+          echo "Testing Go module download..."
+          echo "Attempting: go mod download github.com/jetclock/jetclock-sdk"
+          
+          GO_OUTPUT=$(go mod download github.com/jetclock/jetclock-sdk 2>&1)
+          GO_EXIT_CODE=$?
+          
+          echo "Go exit code: $GO_EXIT_CODE"
+          echo "Go output: $GO_OUTPUT"
+          
+          if [ $GO_EXIT_CODE -eq 0 ]; then
+            echo "✅ Successfully downloaded jetclock-sdk via Go"
+          else
+            echo "❌ Failed to download jetclock-sdk via Go"
+            echo "This indicates a Go module authentication issue"
+            exit 1
+          fi
 
       - name: Set up Go
         uses: actions/setup-go@v5
