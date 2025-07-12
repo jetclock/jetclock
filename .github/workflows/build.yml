@@ -71,6 +71,43 @@ jobs:
       - name: Configure Git to use Personal Access Token for private modules
         run: git config --global url."https://${{ secrets.BUILD_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
+      - name: Test SDK Access
+        run: |
+          echo "🔍 Testing access to jetclock-sdk repository..."
+          
+          # Test GitHub API access to the private repository
+          echo "Testing GitHub API access..."
+          API_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token ${{ secrets.BUILD_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/jetclock/jetclock-sdk)
+          
+          HTTP_CODE="${API_RESPONSE: -3}"
+          RESPONSE_BODY="${API_RESPONSE%???}"
+          
+          echo "HTTP Status Code: $HTTP_CODE"
+          echo "Response: $RESPONSE_BODY"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Successfully accessed jetclock-sdk repository via GitHub API"
+          else
+            echo "❌ Failed to access jetclock-sdk repository via GitHub API"
+            echo "HTTP Code: $HTTP_CODE"
+            echo "This indicates an authentication or permission issue with BUILD_TOKEN"
+            exit 1
+          fi
+          
+          # Test Git access to the repository
+          echo "Testing Git access..."
+          if git ls-remote "https://github.com/jetclock/jetclock-sdk.git" > /dev/null 2>&1; then
+            echo "✅ Successfully accessed jetclock-sdk repository via Git"
+          else
+            echo "❌ Failed to access jetclock-sdk repository via Git"
+            echo "This indicates a Git authentication issue"
+            exit 1
+          fi
+          
+          echo "🎉 All SDK access tests passed!"
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
