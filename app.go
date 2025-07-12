@@ -3,16 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/jetclock/jetclock-sdk/pkg/logger"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"os"
-	"path/filepath"
-	rt "runtime"
+	"os/exec"
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
+
+	"github.com/jetclock/jetclock-sdk/pkg/logger"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -45,73 +44,67 @@ func NewApp() *App {
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 	debugBridge(ctx)
-	runtime.EventsOn(ctx, "animation-ready", func(optionalData ...interface{}) {
-		data, err := os.ReadFile("/tmp/jetclock-updater.pid")
-		if err == nil {
-			logger.Log.Infof("signalling to: %s app is ready", string(data))
-			if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
-				_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
-			} else {
-				logger.Log.Infof("signall sent to: %s", string(data))
-			}
+	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
+	if err == nil {
+		logger.Log.Infof("signalling to: %s app is ready", string(data))
+		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
+			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
+		} else {
+			logger.Log.Error("failed to convert pid", "err", err)
 		}
-		time.Sleep(4 * time.Second)
-		runtime.EventsEmit(ctx, "animation-start")
-	})
+	} else {
+		logger.Log.Error("failed to read /tmp/jetclock-updater.pid", "err", err)
+	}
 }
+
 func (a *App) GetSystemID() string {
 	return a.SystemID
 }
+
 func (a *App) GetVersion() string {
 	return version
 }
 
-// WailsEmitter implements pluginmanager.EventEmitter via Wails
-type WailsEmitter struct {
-	ctx context.Context
-}
-
-func (we *WailsEmitter) Emit(event string, data interface{}) {
-	//raw, err := json.Marshal(data)
-	//if err != nil {
-	//	runtime.LogErrorf(we.ctx, "WailsEmitter: marshal error for %s: %v", event, err)
-	//	return
-	//}
-	fmt.Println("emit:", event, data)
-	whoCalledMe()
-	runtime.EventsEmit(we.ctx, event, data)
-}
-
-// WailsListener implements pluginmanager.EventListener via Wails
-type WailsListener struct {
-	ctx context.Context
-}
-
-func (wl *WailsListener) On(event string, callback func(args ...interface{})) {
-	runtime.EventsOn(wl.ctx, event, func(args ...interface{}) {
-		callback(args...)
-	})
-}
-func whoCalledMe() {
-	pc, file, line, ok := rt.Caller(2)
-	if !ok {
-		fmt.Println("Could not retrieve caller information")
-		return
+// GetBrightness returns the current screen brightness (0-255)
+func (a *App) GetBrightness() (int, error) {
+	// Try common backlight paths
+	paths := []string{
+		"/sys/class/backlight/backlight/brightness",
+		"/sys/class/backlight/rpi_backlight/brightness",
+		"/sys/class/backlight/panel0-backlight/brightness",
 	}
 
-	// Use runtime.FuncForPC to get a *Func, then .Name() to retrieve the function’s name.
-	fn := rt.FuncForPC(pc)
-	funcName := "unknown"
-	if fn != nil {
-		funcName = fn.Name()
-		// If you want just the base of the function name (no full package path):
-		funcName = filepath.Ext(funcName)
-		if len(funcName) > 0 {
-			funcName = funcName[1:] // strip leading dot
+	var lastErr error
+	for _, path := range paths {
+		data, err := os.ReadFile(path)
+		if err == nil {
+			brightness, err := strconv.Atoi(strings.TrimSpace(string(data)))
+			if err != nil {
+				return 0, fmt.Errorf("failed to parse brightness from %s: %v", path, err)
+			}
+			return brightness, nil
 		}
+		lastErr = err
 	}
 
-	fmt.Printf("Called by %s (at %s:%d)\n", funcName, file, line)
+	// Return a more user-friendly error message
+	return 0, fmt.Errorf("brightness control not available on this system: %v", lastErr)
+}
+
+// SetBrightness sets the screen brightness (0-255)
+func (a *App) SetBrightness(brightness int) error {
+	if brightness < 0 || brightness > 255 {
+		return fmt.Errorf("brightness must be between 0 and 255")
+	}
+
+	cmd := exec.Command("sudo", "sh", "-c", fmt.Sprintf("echo %d > /sys/class/backlight/backlight/brightness", brightness))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %v, output: %s", err, string(output))
+	}
+
+	logger.Log.Infof("Set brightness to %d", brightness)
+	return nil
 }
 
 func debugBridge(ctx context.Context) {

@@ -4,14 +4,15 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/jetclock/jetclock-sdk/pkg/config"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"log"
-	"os"
-	"path/filepath"
 )
 
 var (
@@ -56,8 +57,7 @@ func main() {
 		//Fullscreen: true,
 		//Debug:      options.Debug{OpenInspectorOnStartup: true},
 		AssetServer: &assetserver.Options{
-			Assets:  assets,
-			Handler: NewAssetLoader(),
+			Assets: assets,
 		},
 		BackgroundColour: options.NewRGB(0, 0, 0),
 		OnDomReady:       app.domReady,

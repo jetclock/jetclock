@@ -8,7 +8,7 @@
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "Alex Walker",
-    "email": "amlwwalker@gmail.com"
+    "name": "JetClock",
+    "email": "hello@or-innovation.com"
   }
 }
