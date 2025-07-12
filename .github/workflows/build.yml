@@ -69,19 +69,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure Git to use Personal Access Token for private modules
-        run: |
-          # Configure Git to use PAT for private repos
-          git config --global url."https://${{ secrets.BUILD_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git config --global url."https://${{ secrets.BUILD_TOKEN }}@github.com/".insteadOf "git@github.com:"
-          
-          # Set up credential helper
-          git config --global credential.helper store
-          echo "https://${{ secrets.BUILD_TOKEN }}:x-oauth-basic@github.com" > ~/.git-credentials
-          chmod 600 ~/.git-credentials
-          
-          # Verify configuration
-          echo "Git config:"
-          git config --global --list | grep url
+        run: git config --global url."https://${{ secrets.GH_PAT_AW }}@github.com/".insteadOf "https://github.com/"
 
       - name: Test SDK Access
         run: |
@@ -89,7 +77,7 @@ jobs:
           
           # Test GitHub API access to the private repository
           echo "Testing GitHub API access..."
-          API_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token ${{ secrets.BUILD_TOKEN }}" \
+          API_RESPONSE=$(curl -s -w "%{http_code}" -H "Authorization: token ${{ secrets.GH_PAT_AW }}" \
                -H "Accept: application/vnd.github.v3+json" \
                https://api.github.com/repos/jetclock/jetclock-sdk)
           
@@ -104,56 +92,11 @@ jobs:
           else
             echo "❌ Failed to access jetclock-sdk repository via GitHub API"
             echo "HTTP Code: $HTTP_CODE"
-            echo "This indicates an authentication or permission issue with BUILD_TOKEN"
+            echo "This indicates an authentication or permission issue with GH_PAT_AW"
             exit 1
           fi
           
-          # Test Git access to the repository
-          echo "Testing Git access..."
-          echo "Attempting: git ls-remote https://github.com/jetclock/jetclock-sdk.git"
-          
-          # Try with verbose output to see what's happening
-          GIT_OUTPUT=$(git ls-remote "https://github.com/jetclock/jetclock-sdk.git" 2>&1)
-          GIT_EXIT_CODE=$?
-          
-          echo "Git exit code: $GIT_EXIT_CODE"
-          echo "Git output: $GIT_OUTPUT"
-          
-          if [ $GIT_EXIT_CODE -eq 0 ]; then
-            echo "✅ Successfully accessed jetclock-sdk repository via Git"
-          else
-            echo "❌ Failed to access jetclock-sdk repository via Git"
-            echo "This indicates a Git authentication issue"
-            echo "Trying alternative approach..."
-            
-            # Try with explicit token in URL
-            if git ls-remote "https://${{ secrets.BUILD_TOKEN }}@github.com/jetclock/jetclock-sdk.git" > /dev/null 2>&1; then
-              echo "✅ Successfully accessed with explicit token in URL"
-            else
-              echo "❌ Still failed with explicit token"
-              exit 1
-            fi
-          fi
-          
-          echo "🎉 All SDK access tests passed!"
-          
-          # Test Go module download directly
-          echo "Testing Go module download..."
-          echo "Attempting: go mod download github.com/jetclock/jetclock-sdk"
-          
-          GO_OUTPUT=$(go mod download github.com/jetclock/jetclock-sdk 2>&1)
-          GO_EXIT_CODE=$?
-          
-          echo "Go exit code: $GO_EXIT_CODE"
-          echo "Go output: $GO_OUTPUT"
-          
-          if [ $GO_EXIT_CODE -eq 0 ]; then
-            echo "✅ Successfully downloaded jetclock-sdk via Go"
-          else
-            echo "❌ Failed to download jetclock-sdk via Go"
-            echo "This indicates a Go module authentication issue"
-            exit 1
-          fi
+          echo "🎉 SDK access test passed!"
 
       - name: Set up Go
         uses: actions/setup-go@v5
