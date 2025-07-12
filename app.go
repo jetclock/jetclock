@@ -46,20 +46,36 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
-	// debugBridge(ctx)
-	// runtime.EventsOn(ctx, "app-ready", func(optionalData ...interface{}) {
+	debugBridge(ctx)
+
+	// Also log to a file for debugging
+	logFile, err := os.OpenFile("/tmp/jetclock.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err == nil {
+		defer logFile.Close()
+		fmt.Fprintf(logFile, "[%s] JetClock app starting, PID: %d\n", time.Now().Format("2006-01-02 15:04:05"), os.Getpid())
+	}
+
+	// Run immediately when DOM is ready
 	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
 	if err == nil {
 		logger.Log.Infof("signalling to: %s app is ready", string(data))
+		if logFile != nil {
+			fmt.Fprintf(logFile, "[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(data))
+		}
 		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
 			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
 		} else {
 			logger.Log.Infof("signall sent to: %s", string(data))
 		}
+	} else {
+		if logFile != nil {
+			fmt.Fprintf(logFile, "[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
+		}
 	}
 	time.Sleep(4 * time.Second)
-	// runtime.EventsEmit(ctx, "app-start")
-	// })
+	if logFile != nil {
+		fmt.Fprintf(logFile, "[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
+	}
 }
 
 func (a *App) GetSystemID() string {
