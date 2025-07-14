@@ -58,8 +58,13 @@ function Loader() {
             const targetBrightness = clockStatus.screenon ? 1 : 0;
             
             try {
-                await window.go.main.App.SetBrightness(targetBrightness);
-                console.log(`Screen ${targetBrightness ? 'on' : 'off'}`);
+                // Check current brightness first
+                const currentBrightness = await window.go.main.App.GetBrightness();
+                
+                // Only update if brightness needs to change
+                if (currentBrightness !== targetBrightness) {
+                    await window.go.main.App.SetBrightness(targetBrightness);
+                }
             } catch (error) {
                 console.warn('Failed to control screen brightness:', error.message);
             }
