@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	rt "runtime"
 	"strconv"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
+	"github.com/jetclock/jetclock-sdk/pkg/utils"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -37,7 +37,7 @@ func NewApp() *App {
 	if err == nil {
 		a.SystemID = piSerial
 	} else {
-		a.SystemID = "000000005d34b088"
+		a.SystemID = "123"
 	}
 	return &a
 }
@@ -88,22 +88,7 @@ func (a *App) GetVersion() string {
 
 // GetBrightness returns the current screen brightness (0 or 1)
 func (a *App) GetBrightness() (int, error) {
-	data, err := os.ReadFile("/sys/class/backlight/backlight/brightness")
-	if err != nil {
-		return 0, fmt.Errorf("failed to read brightness: %v", err)
-	}
-
-	brightness, err := strconv.Atoi(strings.TrimSpace(string(data)))
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse brightness: %v", err)
-	}
-
-	// Validate that brightness is 0 or 1
-	if brightness != 0 && brightness != 1 {
-		return 0, fmt.Errorf("invalid brightness value: %d (expected 0 or 1)", brightness)
-	}
-
-	return brightness, nil
+	return utils.CheckDisplay()
 }
 
 // SetBrightness sets the screen brightness (0 or 1)
@@ -112,10 +97,10 @@ func (a *App) SetBrightness(brightness int) error {
 		return fmt.Errorf("brightness must be 0 or 1")
 	}
 
-	cmd := exec.Command("sudo", "sh", "-c", fmt.Sprintf("echo %d > /sys/class/backlight/backlight/brightness", brightness))
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to set brightness: %v, output: %s", err, string(output))
+	if brightness == 0 {
+		utils.TurnOffDisplay()
+	} else {
+		utils.TurnOnDisplay()
 	}
 
 	logger.Log.Infof("Set brightness to %d", brightness)
