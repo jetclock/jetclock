@@ -111,9 +111,7 @@ function Loader() {
                     }}
                 />
             ) : (
-                <div className="w-full h-full bg-black flex items-center justify-center">
-                    <div className="text-white text-lg">Screen Off</div>
-                </div>
+                <div className="w-full h-full bg-black flex items-center justify-center"></div>
             )}
         </div>
     );
