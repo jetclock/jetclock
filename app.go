@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	rt "runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -14,7 +12,6 @@ import (
 
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/utils"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -33,7 +30,7 @@ func NewApp() *App {
 	a := App{
 		home: dir,
 	}
-	piSerial, err := getPiSerial()
+	piSerial, err := utils.GetPiSerial()
 	if err == nil {
 		a.SystemID = piSerial
 	} else {
@@ -46,36 +43,26 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
-	debugBridge(ctx)
-
-	// Also log to a file for debugging
-	logFile, err := os.OpenFile("/tmp/jetclock.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err == nil {
-		defer logFile.Close()
-		fmt.Fprintf(logFile, "[%s] JetClock app starting, PID: %d\n", time.Now().Format("2006-01-02 15:04:05"), os.Getpid())
-	}
 
 	// Run immediately when DOM is ready
 	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
 	if err == nil {
 		logger.Log.Infof("signalling to: %s app is ready", string(data))
-		if logFile != nil {
-			fmt.Fprintf(logFile, "[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(data))
-		}
+
+		logger.Log.Infof("[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(data))
+
 		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
 			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
 		} else {
 			logger.Log.Infof("signall sent to: %s", string(data))
 		}
 	} else {
-		if logFile != nil {
-			fmt.Fprintf(logFile, "[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
-		}
+		logger.Log.Infof("[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
 	}
 	time.Sleep(4 * time.Second)
-	if logFile != nil {
-		fmt.Fprintf(logFile, "[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
-	}
+
+	logger.Log.Infof("[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
+
 }
 
 func (a *App) GetSystemID() string {
@@ -105,94 +92,4 @@ func (a *App) SetBrightness(brightness int) error {
 
 	logger.Log.Infof("Set brightness to %d", brightness)
 	return nil
-}
-
-// WailsEmitter implements pluginmanager.EventEmitter via Wails
-type WailsEmitter struct {
-	ctx context.Context
-}
-
-func (we *WailsEmitter) Emit(event string, data interface{}) {
-	fmt.Println("emit:", event, data)
-	whoCalledMe()
-	runtime.EventsEmit(we.ctx, event, data)
-}
-
-// WailsListener implements pluginmanager.EventListener via Wails
-type WailsListener struct {
-	ctx context.Context
-}
-
-func (wl *WailsListener) On(event string, callback func(args ...interface{})) {
-	runtime.EventsOn(wl.ctx, event, func(args ...interface{}) {
-		callback(args...)
-	})
-}
-
-func whoCalledMe() {
-	pc, file, line, ok := rt.Caller(2)
-	if !ok {
-		fmt.Println("Could not retrieve caller information")
-		return
-	}
-
-	// Use runtime.FuncForPC to get a *Func, then .Name() to retrieve the function's name.
-	fn := rt.FuncForPC(pc)
-	funcName := "unknown"
-	if fn != nil {
-		funcName = fn.Name()
-		// If you want just the base of the function name (no full package path):
-		funcName = filepath.Ext(funcName)
-		if len(funcName) > 0 {
-			funcName = funcName[1:] // strip leading dot
-		}
-	}
-
-	fmt.Printf("Called by %s (at %s:%d)\n", funcName, file, line)
-}
-
-func debugBridge(ctx context.Context) {
-	// Listen for all frontend logs
-	runtime.EventsOn(ctx, "jetclock:frontend.log", func(args ...interface{}) {
-		if len(args) < 1 {
-			return
-		}
-		m, ok := args[0].(map[string]interface{})
-		if !ok {
-			return
-		}
-		level, _ := m["level"].(string)
-		msg, _ := m["msg"].(string)
-
-		// Now decide: print to stdout, or write to your logfile
-		switch level {
-		case "info":
-			logger.Log.Info("frontend", "msg", msg)
-		case "warn":
-			logger.Log.Warn("frontend", "msg", msg)
-		case "error":
-			logger.Log.Error("frontend", "msg", msg)
-		default:
-			logger.Log.Info("frontend", "msg", msg)
-		}
-	})
-}
-
-func getPiSerial() (string, error) {
-	data, err := os.ReadFile("/proc/cpuinfo")
-	if err != nil {
-		return "", err
-	}
-
-	lines := strings.Split(string(data), "\n")
-	for _, line := range lines {
-		if strings.HasPrefix(line, "Serial") {
-			parts := strings.Split(line, ":")
-			if len(parts) == 2 {
-				return strings.TrimSpace(parts[1]), nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf("serial not found")
 }
