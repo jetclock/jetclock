@@ -1,4 +1,4 @@
-import { h, render } from 'preact';
+import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import './index.css';
 
@@ -7,6 +7,7 @@ function Loader() {
     const [version, setVersion] = useState(null);
     const [loading, setLoading] = useState(true);
     const [clockStatus, setClockStatus] = useState({ screenon: true }); // Default to screen on
+    const [iframeKey, setIframeKey] = useState(0); // Key to force iframe reload
 
     // Get SystemID and Version from Go backend
     useEffect(() => {
@@ -35,6 +36,22 @@ function Loader() {
                 if (response.ok) {
                     const status = await response.json();
                     setClockStatus(status);
+                    
+                    // Check if reboot timestamp exists and is within last 60 seconds
+                    if (status.reboot) {
+                        const rebootTime = status.reboot * 1000; // Convert UNIX timestamp to milliseconds
+                        const currentTime = Date.now();
+                        const timeDiff = (currentTime - rebootTime) / 1000; // difference in seconds
+                        
+                        if (timeDiff <= 60 && timeDiff >= 0) {
+                            console.log('Reboot timestamp within 60 seconds, rebooting...');
+                            try {
+                                await window.go.main.App.Reboot();
+                            } catch (error) {
+                                console.error('Failed to reboot:', error);
+                            }
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Failed to fetch clock status:', error);
@@ -73,6 +90,17 @@ function Loader() {
         setBrightness();
     }, [clockStatus.screenon]);
 
+    // Reload iframe every 6 hours (only when screen is on)
+    useEffect(() => {
+        if (!clockStatus.screenon) return;
+        
+        const reloadInterval = setInterval(() => {
+            setIframeKey(prev => prev + 1);
+        }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
+        
+        return () => clearInterval(reloadInterval);
+    }, [clockStatus.screenon]);
+
     // Show iframe once we have the systemID (don't wait for brightness)
     useEffect(() => {
         console.log('Loading state check:', { systemID, version, loading });
@@ -99,6 +127,7 @@ function Loader() {
         <div className="w-full h-full">
             {clockStatus.screenon ? (
                 <iframe
+                    key={iframeKey}
                     src={clockUrl}
                     className="border-0"
                     title="JetClock"

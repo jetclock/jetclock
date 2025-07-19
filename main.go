@@ -42,7 +42,7 @@ func main() {
 		}
 	}
 
-	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
+	logger.Log.Infof("📍 JetClock App started with PID %d - version %s", os.Getpid(), version)
 	app := NewApp()
 
 	options.NewRGB(0, 0, 0)
