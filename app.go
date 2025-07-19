@@ -54,7 +54,7 @@ func (a *App) domReady(ctx context.Context) {
 		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
 			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
 		} else {
-			logger.Log.Infof("signall sent to: %s", string(data))
+			logger.Log.Infof("signal sent to: %s", string(data))
 		}
 	} else {
 		logger.Log.Infof("[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
@@ -91,5 +91,12 @@ func (a *App) SetBrightness(brightness int) error {
 	}
 
 	logger.Log.Infof("Set brightness to %d", brightness)
+	return nil
+}
+
+// Reboot reboots the system
+func (a *App) Reboot() error {
+	logger.Log.Infof("Rebooting system...")
+	utils.Reboot()
 	return nil
 }

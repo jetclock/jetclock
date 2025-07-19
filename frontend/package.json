@@ -1,6 +1,6 @@
 {
-  "name": "preact-template",
-  "version": "1.0.0",
+  "name": "JetClock",
+  "version": "0.0.0.11",
   "description": "",
   "main": "",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "vite build"
   },
   "keywords": [],
-  "author": "Alex Walker",
+  "author": "JetClock",
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "@babel/plugin-transform-react-jsx": "^7.27.1",
