@@ -14,6 +14,10 @@ export function GetVersion() {
   return window['go']['main']['App']['GetVersion']();
 }
 
+export function Reboot() {
+  return window['go']['main']['App']['Reboot']();
+}
+
 export function SetBrightness(arg1) {
   return window['go']['main']['App']['SetBrightness'](arg1);
 }

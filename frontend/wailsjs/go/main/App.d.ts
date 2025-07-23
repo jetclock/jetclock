@@ -7,4 +7,6 @@ export function GetSystemID():Promise<string>;
 
 export function GetVersion():Promise<string>;
 
+export function Reboot():Promise<void>;
+
 export function SetBrightness(arg1:number):Promise<void>;
