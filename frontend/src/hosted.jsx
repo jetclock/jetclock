@@ -31,8 +31,15 @@ function Loader() {
         if (!systemID) return;
 
         const pollClockStatus = async () => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            
             try {
-                const response = await fetch(`https://app.jetclock.io/api/clock-status?id=${systemID}`);
+                const response = await fetch(`https://app.jetclock.io/api/clock-status?id=${systemID}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                
                 if (response.ok) {
                     const status = await response.json();
                     setClockStatus(status);
@@ -54,7 +61,12 @@ function Loader() {
                     }
                 }
             } catch (error) {
-                console.error('Failed to fetch clock status:', error);
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    console.log('Request timed out after 5 seconds');
+                } else {
+                    console.error('Failed to fetch clock status:', error);
+                }
             }
         };
 
@@ -96,7 +108,7 @@ function Loader() {
         
         const reloadInterval = setInterval(() => {
             setIframeKey(prev => prev + 1);
-        }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
+        }, 2 * 60 * 60 * 1000); // 2 hours in milliseconds
         
         return () => clearInterval(reloadInterval);
     }, [clockStatus.screenon]);
@@ -120,6 +132,7 @@ function Loader() {
     }
 
     const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}`;
+    
     
     console.log('Rendering with:', { systemID, version, clockStatus, loading });
 
