@@ -73,8 +73,8 @@ function Loader() {
         // Initial poll
         pollClockStatus();
 
-        // Set up polling every 10 seconds
-        const interval = setInterval(pollClockStatus, 10000);
+        // Set up polling every 20 seconds
+        const interval = setInterval(pollClockStatus, 20000);
 
         return () => clearInterval(interval);
     }, [systemID]);
