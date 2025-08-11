@@ -34,9 +34,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to init config: %v", err)
 	}
-	if err := logger.InitLogger(appConfig.LogLevel, filepath.Join("/home", "jetclock"), ""); err != nil {
+	if err := logger.InitLogger("[jetclock]", appConfig.LogLevel, filepath.Join("/home", "jetclock"), ""); err != nil {
+		fmt.Printf("Failed to init logger: %v. Using relative directory", err)
 		dir, _ := os.UserHomeDir()
-		if err := logger.InitLogger(appConfig.LogLevel, filepath.Join(dir, "dev", "jetclock"), ""); err != nil {
+		if err := logger.InitLogger("[jetclock]", appConfig.LogLevel, dir, ""); err != nil {
 			log.Fatalf("Failed to init logger: %v", err)
 		}
 	}
