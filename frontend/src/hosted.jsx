@@ -131,7 +131,8 @@ function Loader() {
         );
     }
 
-    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}`;
+    // const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}`;
+    const clockUrl = `https://app.jetclock.io/clock/00000000874f46d7`;
     
     
     console.log('Rendering with:', { systemID, version, clockStatus, loading });
