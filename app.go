@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 	"syscall"
 	"time"
 
@@ -45,17 +43,14 @@ func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 
 	// Run immediately when DOM is ready
-	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
+	p := utils.PidPath("jetclock-updater")
+	pid, err := utils.ReadPID(p)
 	if err == nil {
-		logger.Log.Infof("signalling to: %s app is ready", string(data))
+		logger.Log.Infof("signalling to: %s app is ready", string(pid))
 
-		logger.Log.Infof("[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(data))
+		logger.Log.Infof("[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(pid))
 
-		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
-			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
-		} else {
-			logger.Log.Infof("signal sent to: %s", string(data))
-		}
+		_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
 	} else {
 		logger.Log.Infof("[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
 	}
