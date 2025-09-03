@@ -3,8 +3,8 @@ module jetclock
 go 1.24.3
 
 require (
-	github.com/jetclock/jetclock-sdk v0.0.0-20250811182754-b434061d000e
-	github.com/wailsapp/wails/v2 v2.10.1
+	github.com/jetclock/jetclock-sdk v0.4.0
+	github.com/wailsapp/wails/v2 v2.10.2
 )
 
 require (
@@ -12,6 +12,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/labstack/echo/v4 v4.13.3 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
@@ -36,3 +37,5 @@ require (
 	golang.org/x/text v0.25.0 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )
+
+//replace github.com/jetclock/jetclock-sdk => /Users/alexwalker/go/src/github.com/jetclock/jetclock-sdk

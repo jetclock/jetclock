@@ -54,7 +54,6 @@ func (a *App) domReady(ctx context.Context) {
 	} else {
 		logger.Log.Infof("[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
 	}
-	time.Sleep(4 * time.Second)
 
 	logger.Log.Infof("[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
 
