@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"syscall"
@@ -36,18 +35,11 @@ func NewApp() *App {
 	} else {
 		a.SystemID = "123"
 	}
-	
+
 	// Initialize iframe handler
 	a.iframeHandler = iframe.NewHandler(&a, "https://app.jetclock.io")
-	
-	return &a
-}
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
-	logger.Log.Infof("[%s] App startup called\n", time.Now().Format("2006-01-02 15:04:05"))
+	return &a
 }
 
 // domReady is called when the DOM is ready
@@ -58,6 +50,7 @@ func (a *App) domReady(ctx context.Context) {
 	p := utils.PidPath("jetclock-updater")
 	pid, err := utils.ReadPID(p)
 	if err == nil {
+		// FIX: Use %d for integer formatting, not string(pid)
 		logger.Log.Infof("signalling to: %d app is ready", pid)
 
 		logger.Log.Infof("[%s] Signalling to PID: %d\n", time.Now().Format("2006-01-02 15:04:05"), pid)
@@ -80,49 +73,13 @@ func (a *App) GetVersion() string {
 }
 
 // GetBrightness returns the current screen brightness (0-100)
-// Note: This is a simplified implementation that returns 0 or 100
-// TODO: Implement actual PWM reading if needed
 func (a *App) GetBrightness() (int, error) {
-	displayOn, err := utils.CheckDisplay()
-	if err != nil {
-		return 0, err
-	}
-	
-	// For now, return 0 or 100 based on display state
-	// In future, could read actual PWM value from GPIO
-	if displayOn == 1 {
-		return 100, nil
-	}
-	return 0, nil
+	return utils.GetBrightnessPercent()
 }
 
 // SetBrightness sets the screen brightness (0-100)
 func (a *App) SetBrightness(brightness int) error {
-	// Clamp to 0-100
-	if brightness < 0 {
-		brightness = 0
-	}
-	if brightness > 100 {
-		brightness = 100
-	}
-	
-	// Convert percentage to duty cycle (0-1000000)
-	dutyCycle := (brightness * 1000000) / 100
-	
-	// Use GPIO 19 at 100Hz for backlight control
-	cmd := fmt.Sprintf("pigs hp 19 100 %d", dutyCycle)
-	if err := utils.ExecuteCommand(cmd); err != nil {
-		// Fallback to old on/off method if PWM fails
-		if brightness == 0 {
-			utils.TurnOffDisplay()
-		} else {
-			utils.TurnOnDisplay()
-		}
-		logger.Log.Warnf("PWM control failed, using fallback: %v", err)
-	}
-	
-	logger.Log.Infof("Set brightness to %d%%", brightness)
-	return nil
+	return utils.SetBrightnessPercent(brightness)
 }
 
 // Reboot reboots the system
@@ -135,16 +92,14 @@ func (a *App) Reboot() error {
 // HandleIframeMessage processes messages from the iframe using the SDK handler
 func (a *App) HandleIframeMessage(origin, method string, args []interface{}) interface{} {
 	logger.Log.Infof("HandleIframeMessage called: origin=%s, method=%s, args=%v", origin, method, args)
-	
+
 	messageData := iframe.MessageData{
 		Method: method,
 		Args:   args,
 	}
-	
+
 	response := a.iframeHandler.HandleMessage(origin, messageData)
 	logger.Log.Infof("HandleIframeMessage response: %+v", response)
-	
+
 	return response
 }
-
-
