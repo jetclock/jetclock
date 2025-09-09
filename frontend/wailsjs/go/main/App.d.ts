@@ -7,6 +7,8 @@ export function GetSystemID():Promise<string>;
 
 export function GetVersion():Promise<string>;
 
+export function HandleIframeMessage(arg1:string,arg2:string,arg3:Array<any>):Promise<any>;
+
 export function Reboot():Promise<void>;
 
 export function SetBrightness(arg1:number):Promise<void>;

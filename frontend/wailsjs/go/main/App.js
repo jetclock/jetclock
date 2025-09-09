@@ -14,6 +14,10 @@ export function GetVersion() {
   return window['go']['main']['App']['GetVersion']();
 }
 
+export function HandleIframeMessage(arg1, arg2, arg3) {
+  return window['go']['main']['App']['HandleIframeMessage'](arg1, arg2, arg3);
+}
+
 export function Reboot() {
   return window['go']['main']['App']['Reboot']();
 }

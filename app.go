@@ -8,15 +8,17 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jetclock/jetclock-sdk/pkg/iframe"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/utils"
 )
 
 // App struct
 type App struct {
-	ctx      context.Context
-	home     string
-	SystemID string
+	ctx           context.Context
+	home          string
+	SystemID      string
+	iframeHandler *iframe.Handler
 }
 
 // NewApp creates a new App application struct
@@ -34,10 +36,15 @@ func NewApp() *App {
 	} else {
 		a.SystemID = "123"
 	}
+
+	// Initialize iframe handler
+	a.iframeHandler = iframe.NewHandler(&a, "https://app.jetclock.io")
+
 	return &a
 }
 
-// domReady is called when the DOM is ready
+// startup is called when the app starts. The context is saved
+// so we can call the runtime methods
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 
@@ -45,7 +52,6 @@ func (a *App) domReady(ctx context.Context) {
 	p := utils.PidPath("jetclock-updater")
 	pid, err := utils.ReadPID(p)
 	if err == nil {
-		// FIX: Use %d for integer formatting, not string(pid)
 		logger.Log.Infof("signalling to: %d app is ready", pid)
 
 		logger.Log.Infof("[%s] Signalling to PID: %d\n", time.Now().Format("2006-01-02 15:04:05"), pid)
@@ -95,3 +101,13 @@ func (a *App) Reboot() error {
 	return nil
 }
 
+// HandleIframeMessage processes messages from the iframe using the SDK handler
+func (a *App) HandleIframeMessage(origin, method string, args []interface{}) interface{} {
+	messageData := iframe.MessageData{
+		Method: method,
+		Args:   args,
+	}
+
+	response := a.iframeHandler.HandleMessage(origin, messageData)
+	return response
+}

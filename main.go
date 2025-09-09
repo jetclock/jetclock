@@ -44,7 +44,13 @@ func main() {
 			log.Fatalf("Failed to init logger: %v", err)
 		}
 	}
-	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
+	logger.Log.Infof("📍 JetClock App started with PID %d - version %s", os.Getpid(), version)
+
+	// Initialize GPIO environment (packages and pigpiod daemon)
+	// if err := utils.InitializeGPIOEnvironment(); err != nil {
+	// 	logger.Log.Errorf("GPIO initialization failed: %v", err)
+	// 	// Continue anyway, app can still function without GPIO
+	// }
 
 	p := utils.PidPath("jetclock")
 	if err := utils.WritePID(p); err != nil {
