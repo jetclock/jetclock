@@ -8,15 +8,17 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jetclock/jetclock-sdk/pkg/iframe"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/utils"
 )
 
 // App struct
 type App struct {
-	ctx      context.Context
-	home     string
-	SystemID string
+	ctx           context.Context
+	home          string
+	SystemID      string
+	iframeHandler *iframe.Handler
 }
 
 // NewApp creates a new App application struct
@@ -34,6 +36,10 @@ func NewApp() *App {
 	} else {
 		a.SystemID = "123"
 	}
+	
+	// Initialize iframe handler
+	a.iframeHandler = iframe.NewHandler(&a, "https://app.jetclock.io")
+	
 	return &a
 }
 
@@ -119,4 +125,16 @@ func (a *App) Reboot() error {
 	utils.Reboot()
 	return nil
 }
+
+// HandleIframeMessage processes messages from the iframe using the SDK handler
+func (a *App) HandleIframeMessage(origin, method string, args []interface{}) interface{} {
+	messageData := iframe.MessageData{
+		Method: method,
+		Args:   args,
+	}
+	
+	response := a.iframeHandler.HandleMessage(origin, messageData)
+	return response
+}
+
 
