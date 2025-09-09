@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
-	"github.com/jetclock/jetclock-sdk/pkg/iframe"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/utils"
 )
 
 // App struct
 type App struct {
-	ctx           context.Context
-	home          string
-	SystemID      string
-	iframeHandler *iframe.Handler
+	ctx      context.Context
+	home     string
+	SystemID string
 }
 
 // NewApp creates a new App application struct
@@ -36,10 +36,6 @@ func NewApp() *App {
 	} else {
 		a.SystemID = "123"
 	}
-
-	// Initialize iframe handler
-	a.iframeHandler = iframe.NewHandler(&a, "https://app.jetclock.io")
-
 	return &a
 }
 
@@ -49,17 +45,21 @@ func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 
 	// Run immediately when DOM is ready
-	p := utils.PidPath("jetclock-updater")
-	pid, err := utils.ReadPID(p)
+	data, err := os.ReadFile("/tmp/jetclock-updater.pid")
 	if err == nil {
-		logger.Log.Infof("signalling to: %d app is ready", pid)
+		logger.Log.Infof("signalling to: %s app is ready", string(data))
 
-		logger.Log.Infof("[%s] Signalling to PID: %d\n", time.Now().Format("2006-01-02 15:04:05"), pid)
+		logger.Log.Infof("[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(data))
 
-		_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
+		if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
+			_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
+		} else {
+			logger.Log.Infof("signal sent to: %s", string(data))
+		}
 	} else {
 		logger.Log.Infof("[%s] No updater PID file found: %v\n", time.Now().Format("2006-01-02 15:04:05"), err)
 	}
+	time.Sleep(4 * time.Second)
 
 	logger.Log.Infof("[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
 
@@ -97,17 +97,6 @@ func (a *App) SetBrightness(brightness int) error {
 // Reboot reboots the system
 func (a *App) Reboot() error {
 	logger.Log.Infof("Rebooting system...")
-	utils.Reboot()
+	// utils.Reboot()
 	return nil
-}
-
-// HandleIframeMessage processes messages from the iframe using the SDK handler
-func (a *App) HandleIframeMessage(origin, method string, args []interface{}) interface{} {
-	messageData := iframe.MessageData{
-		Method: method,
-		Args:   args,
-	}
-
-	response := a.iframeHandler.HandleMessage(origin, messageData)
-	return response
 }
