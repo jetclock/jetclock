@@ -2,22 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"syscall"
 	"time"
 
-	"github.com/jetclock/jetclock-sdk/pkg/iframe"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/utils"
 )
 
 // App struct
 type App struct {
-	ctx           context.Context
-	home          string
-	SystemID      string
-	iframeHandler *iframe.Handler
+	ctx      context.Context
+	home     string
+	SystemID string
 }
 
 // NewApp creates a new App application struct
@@ -35,10 +34,6 @@ func NewApp() *App {
 	} else {
 		a.SystemID = "123"
 	}
-
-	// Initialize iframe handler
-	a.iframeHandler = iframe.NewHandler(&a, "https://app.jetclock.io")
-
 	return &a
 }
 
@@ -72,14 +67,25 @@ func (a *App) GetVersion() string {
 	return version
 }
 
-// GetBrightness returns the current screen brightness (0-100)
+// GetBrightness returns the current screen brightness (0 or 1)
 func (a *App) GetBrightness() (int, error) {
-	return utils.GetBrightnessPercent()
+	return utils.CheckDisplay()
 }
 
-// SetBrightness sets the screen brightness (0-100)
+// SetBrightness sets the screen brightness (0 or 1)
 func (a *App) SetBrightness(brightness int) error {
-	return utils.SetBrightnessPercent(brightness)
+	if brightness != 0 && brightness != 1 {
+		return fmt.Errorf("brightness must be 0 or 1")
+	}
+
+	if brightness == 0 {
+		utils.TurnOffDisplay()
+	} else {
+		utils.TurnOnDisplay()
+	}
+
+	logger.Log.Infof("Set brightness to %d", brightness)
+	return nil
 }
 
 // Reboot reboots the system
@@ -89,17 +95,3 @@ func (a *App) Reboot() error {
 	return nil
 }
 
-// HandleIframeMessage processes messages from the iframe using the SDK handler
-func (a *App) HandleIframeMessage(origin, method string, args []interface{}) interface{} {
-	logger.Log.Infof("HandleIframeMessage called: origin=%s, method=%s, args=%v", origin, method, args)
-
-	messageData := iframe.MessageData{
-		Method: method,
-		Args:   args,
-	}
-
-	response := a.iframeHandler.HandleMessage(origin, messageData)
-	logger.Log.Infof("HandleIframeMessage response: %+v", response)
-
-	return response
-}
