@@ -71,6 +71,7 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: options.NewRGB(0, 0, 0),
+		OnStartup:        app.startup,
 		OnDomReady:       app.domReady,
 		Bind: []interface{}{
 			app,

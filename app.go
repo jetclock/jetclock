@@ -45,6 +45,12 @@ func NewApp() *App {
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
+func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
+	logger.Log.Infof("[%s] App startup called\n", time.Now().Format("2006-01-02 15:04:05"))
+}
+
+// domReady is called when the DOM is ready
 func (a *App) domReady(ctx context.Context) {
 	a.ctx = ctx
 
@@ -52,9 +58,9 @@ func (a *App) domReady(ctx context.Context) {
 	p := utils.PidPath("jetclock-updater")
 	pid, err := utils.ReadPID(p)
 	if err == nil {
-		logger.Log.Infof("signalling to: %s app is ready", string(pid))
+		logger.Log.Infof("signalling to: %d app is ready", pid)
 
-		logger.Log.Infof("[%s] Signalling to PID: %s\n", time.Now().Format("2006-01-02 15:04:05"), string(pid))
+		logger.Log.Infof("[%s] Signalling to PID: %d\n", time.Now().Format("2006-01-02 15:04:05"), pid)
 
 		_ = syscall.Kill(pid, syscall.SIGUSR1) // notify updater
 	} else {
@@ -128,12 +134,16 @@ func (a *App) Reboot() error {
 
 // HandleIframeMessage processes messages from the iframe using the SDK handler
 func (a *App) HandleIframeMessage(origin, method string, args []interface{}) interface{} {
+	logger.Log.Infof("HandleIframeMessage called: origin=%s, method=%s, args=%v", origin, method, args)
+	
 	messageData := iframe.MessageData{
 		Method: method,
 		Args:   args,
 	}
 	
 	response := a.iframeHandler.HandleMessage(origin, messageData)
+	logger.Log.Infof("HandleIframeMessage response: %+v", response)
+	
 	return response
 }
 
