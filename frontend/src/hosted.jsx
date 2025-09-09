@@ -6,8 +6,7 @@ function Loader() {
     const [systemID, setSystemID] = useState(null);
     const [version, setVersion] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [clockStatus, setClockStatus] = useState({ screenon: true }); // Default to screen on
-    const [iframeKey, setIframeKey] = useState(0); // Key to force iframe reload
+    const [iframeKey, setIframeKey] = useState(0);
 
     // Get SystemID and Version from Go backend
     useEffect(() => {
@@ -25,95 +24,77 @@ function Loader() {
             });
     }, []);
 
-
-    // Poll clock status every 10 seconds
+    // Set up message listener for iframe commands
     useEffect(() => {
-        if (!systemID) return;
+        const handleMessage = async (event) => {
+            // Verify origin for security
+            if (event.origin !== 'https://app.jetclock.io') {
+                console.warn('Ignoring message from untrusted origin:', event.origin);
+                return;
+            }
 
-        const pollClockStatus = async () => {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            const { method, args = [] } = event.data || {};
+            
+            if (!method) {
+                console.warn('No method specified in message');
+                return;
+            }
             
             try {
-                const response = await fetch(`https://app.jetclock.io/api/clock-status?id=${systemID}`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
+                let result;
                 
-                if (response.ok) {
-                    const status = await response.json();
-                    setClockStatus(status);
-                    
-                    // Check if reboot timestamp exists and is within last 60 seconds
-                    if (status.reboot) {
-                        const rebootTime = status.reboot * 1000; // Convert UNIX timestamp to milliseconds
-                        const currentTime = Date.now();
-                        const timeDiff = (currentTime - rebootTime) / 1000; // difference in seconds
-                        
-                        if (timeDiff <= 60 && timeDiff >= 0) {
-                            console.log('Reboot timestamp within 60 seconds, rebooting...');
-                            try {
-                                await window.go.main.App.Reboot();
-                            } catch (error) {
-                                console.error('Failed to reboot:', error);
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                clearTimeout(timeoutId);
-                if (error.name === 'AbortError') {
-                    console.log('Request timed out after 5 seconds');
+                // Call the appropriate Go function based on method name
+                if (window.go?.main?.App?.[method]) {
+                    console.log(`Calling Go method: ${method}`, args);
+                    result = await window.go.main.App[method](...args);
+                } else if (method === 'reloadIframe') {
+                    // Simple iframe reload - just change the key
+                    console.log('Reloading iframe');
+                    setIframeKey(prev => prev + 1);
+                    result = { success: true };
                 } else {
-                    console.error('Failed to fetch clock status:', error);
+                    throw new Error(`Method '${method}' not found`);
                 }
-            }
-        };
 
-        // Initial poll
-        pollClockStatus();
-
-        // Set up polling every 20 seconds
-        const interval = setInterval(pollClockStatus, 20000);
-
-        return () => clearInterval(interval);
-    }, [systemID]);
-
-    // Control screen brightness based on status API
-    useEffect(() => {
-        if (clockStatus.screenon === undefined) return;
-        
-        const setBrightness = async () => {
-            const targetBrightness = clockStatus.screenon ? 1 : 0;
-            
-            try {
-                // Check current brightness first
-                const currentBrightness = await window.go.main.App.GetBrightness();
+                // Send response back to iframe
+                if (event.source && event.source.postMessage) {
+                    event.source.postMessage({
+                        method: method,
+                        result: result,
+                        error: null
+                    }, event.origin);
+                }
+            } catch (err) {
+                console.error(`Error calling ${method}:`, err);
                 
-                // Only update if brightness needs to change
-                if (currentBrightness !== targetBrightness) {
-                    await window.go.main.App.SetBrightness(targetBrightness);
+                // Send error response
+                if (event.source && event.source.postMessage) {
+                    event.source.postMessage({
+                        method: method,
+                        result: null,
+                        error: err.message
+                    }, event.origin);
                 }
-            } catch (error) {
-                console.warn('Failed to control screen brightness:', error.message);
             }
         };
 
-        setBrightness();
-    }, [clockStatus.screenon]);
-
-    // Reload iframe every 6 hours (only when screen is on)
-    useEffect(() => {
-        if (!clockStatus.screenon) return;
+        window.addEventListener('message', handleMessage);
         
+        return () => {
+            window.removeEventListener('message', handleMessage);
+        };
+    }, []);
+
+    // Reload iframe every 2 hours
+    useEffect(() => {
         const reloadInterval = setInterval(() => {
             setIframeKey(prev => prev + 1);
         }, 2 * 60 * 60 * 1000); // 2 hours in milliseconds
         
         return () => clearInterval(reloadInterval);
-    }, [clockStatus.screenon]);
+    }, []);
 
-    // Show iframe once we have the systemID (don't wait for brightness)
+    // Show iframe once we have the systemID
     useEffect(() => {
         console.log('Loading state check:', { systemID, version, loading });
         if (systemID && version) {
@@ -131,31 +112,26 @@ function Loader() {
         );
     }
 
-    // const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}`;
-    const clockUrl = `https://app.jetclock.io/clock/00000000874f46d7`;
+    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}`;
+    // const clockUrl = `https://app.jetclock.io/clock/00000000874f46d7`;
     
-    
-    console.log('Rendering with:', { systemID, version, clockStatus, loading });
+    console.log('Rendering with:', { systemID, version, loading });
 
     return (
         <div className="w-full h-full">
-            {clockStatus.screenon ? (
-                <iframe
-                    key={iframeKey}
-                    src={clockUrl}
-                    className="border-0"
-                    title="JetClock"
-                    allow="fullscreen"
-                    style={{
-                        width: '480px',
-                        height: '480px',
-                        border: 'none',
-                        outline: 'none'
-                    }}
-                />
-            ) : (
-                <div className="w-full h-full bg-black flex items-center justify-center"></div>
-            )}
+            <iframe
+                key={iframeKey}
+                src={clockUrl}
+                className="border-0"
+                title="JetClock"
+                allow="fullscreen"
+                style={{
+                    width: '480px',
+                    height: '480px',
+                    border: 'none',
+                    outline: 'none'
+                }}
+            />
         </div>
     );
 }

@@ -67,24 +67,49 @@ func (a *App) GetVersion() string {
 	return version
 }
 
-// GetBrightness returns the current screen brightness (0 or 1)
+// GetBrightness returns the current screen brightness (0-100)
+// Note: This is a simplified implementation that returns 0 or 100
+// TODO: Implement actual PWM reading if needed
 func (a *App) GetBrightness() (int, error) {
-	return utils.CheckDisplay()
+	displayOn, err := utils.CheckDisplay()
+	if err != nil {
+		return 0, err
+	}
+	
+	// For now, return 0 or 100 based on display state
+	// In future, could read actual PWM value from GPIO
+	if displayOn == 1 {
+		return 100, nil
+	}
+	return 0, nil
 }
 
-// SetBrightness sets the screen brightness (0 or 1)
+// SetBrightness sets the screen brightness (0-100)
 func (a *App) SetBrightness(brightness int) error {
-	if brightness != 0 && brightness != 1 {
-		return fmt.Errorf("brightness must be 0 or 1")
+	// Clamp to 0-100
+	if brightness < 0 {
+		brightness = 0
 	}
-
-	if brightness == 0 {
-		utils.TurnOffDisplay()
-	} else {
-		utils.TurnOnDisplay()
+	if brightness > 100 {
+		brightness = 100
 	}
-
-	logger.Log.Infof("Set brightness to %d", brightness)
+	
+	// Convert percentage to duty cycle (0-1000000)
+	dutyCycle := (brightness * 1000000) / 100
+	
+	// Use GPIO 19 at 100Hz for backlight control
+	cmd := fmt.Sprintf("pigs hp 19 100 %d", dutyCycle)
+	if err := utils.ExecuteCommand(cmd); err != nil {
+		// Fallback to old on/off method if PWM fails
+		if brightness == 0 {
+			utils.TurnOffDisplay()
+		} else {
+			utils.TurnOnDisplay()
+		}
+		logger.Log.Warnf("PWM control failed, using fallback: %v", err)
+	}
+	
+	logger.Log.Infof("Set brightness to %d%%", brightness)
 	return nil
 }
 
@@ -94,3 +119,4 @@ func (a *App) Reboot() error {
 	utils.Reboot()
 	return nil
 }
+
