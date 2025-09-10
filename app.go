@@ -97,6 +97,6 @@ func (a *App) SetBrightness(brightness int) error {
 // Reboot reboots the system
 func (a *App) Reboot() error {
 	logger.Log.Infof("Rebooting system...")
-	// utils.Reboot()
+	utils.Reboot()
 	return nil
 }
