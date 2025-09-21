@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	version string = "v0.0.1"
+	version string = "v0.0.16"
 )
 
 //go:embed all:frontend/dist
