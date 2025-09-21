@@ -85,11 +85,11 @@ function Loader() {
         };
     }, []);
 
-    // Reload iframe every 2 hours
+    // Reload iframe every 4 hours
     useEffect(() => {
         const reloadInterval = setInterval(() => {
             setIframeKey(prev => prev + 1);
-        }, 2 * 60 * 60 * 1000); // 2 hours in milliseconds
+        }, 4 * 60 * 60 * 1000); // 2 hours in milliseconds
         
         return () => clearInterval(reloadInterval);
     }, []);
