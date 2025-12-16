@@ -30,9 +30,9 @@ Pre releases will not by default be updated on the devices. If you release from 
 Although the code runs in the Updater, the Release vs PreRelease is explained here as it is this application that would be updated.
 
 ```go
-		if !appConfig.DisableUpdate { 
-			go updateProcess(version, appConfig.PreRelease)
-		}
+if !appConfig.DisableUpdate { 
+    go updateProcess(version, appConfig.PreRelease)
+}
 ```
 
 Here there are two configs that are relevant. 
