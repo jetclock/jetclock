@@ -63,6 +63,12 @@ func (a *App) domReady(ctx context.Context) {
 
 	logger.Log.Infof("[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
 
+	// Initialize GPIO environment after splash screen is cleared and device is ready
+	logger.Log.Infof("[%s] Starting GPIO initialization now that app is ready\n", time.Now().Format("2006-01-02 15:04:05"))
+	if err := utils.InitializeGPIOEnvironment(); err != nil {
+		logger.Log.Errorf("GPIO initialization failed: %v", err)
+		// Continue anyway, app can still function without GPIO
+	}
 }
 
 func (a *App) GetSystemID() string {
@@ -80,6 +86,11 @@ func (a *App) GetBrightness() (int, error) {
 
 // SetBrightness sets the screen brightness (0-100 percentage)
 func (a *App) SetBrightness(brightness int) error {
+	// Legacy compatibility: treat 1 as 100% for old binary brightness calls
+	if brightness == 1 {
+		brightness = 100
+	}
+	
 	if brightness < 0 || brightness > 100 {
 		return fmt.Errorf("brightness must be between 0 and 100")
 	}
