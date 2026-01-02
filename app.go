@@ -64,14 +64,8 @@ func (a *App) domReady(ctx context.Context) {
 	logger.Log.Infof("[%s] DOM ready complete, splash screen should close\n", time.Now().Format("2006-01-02 15:04:05"))
 
 	// Initialize GPIO environment in background after splash screen is cleared
-	go func() {
-		logger.Log.Infof("[%s] Starting background GPIO initialization now that app is ready\n", time.Now().Format("2006-01-02 15:04:05"))
-		if err := utils.InitializeGPIOEnvironment(); err != nil {
-			logger.Log.Errorf("Background GPIO initialization failed: %v", err)
-			// Continue anyway, app can still function without GPIO
-		}
-		logger.Log.Infof("[%s] Background GPIO initialization completed\n", time.Now().Format("2006-01-02 15:04:05"))
-	}()
+	logger.Log.Infof("Starting background GPIO initialization now that app is ready")
+	utils.InitializeGPIOEnvironmentAsync()
 }
 
 func (a *App) GetSystemID() string {
