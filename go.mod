@@ -3,7 +3,7 @@ module jetclock
 go 1.24.3
 
 require (
-	github.com/jetclock/jetclock-sdk v0.5.4
+	github.com/jetclock/jetclock-sdk v0.5.6
 	github.com/wailsapp/wails/v2 v2.10.1
 )
 

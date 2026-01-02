@@ -78,19 +78,18 @@ func (a *App) GetBrightness() (int, error) {
 	return utils.CheckDisplay()
 }
 
-// SetBrightness sets the screen brightness (0 or 1)
+// SetBrightness sets the screen brightness (0-100 percentage)
 func (a *App) SetBrightness(brightness int) error {
-	if brightness != 0 && brightness != 1 {
-		return fmt.Errorf("brightness must be 0 or 1")
+	if brightness < 0 || brightness > 100 {
+		return fmt.Errorf("brightness must be between 0 and 100")
 	}
 
-	if brightness == 0 {
-		utils.TurnOffDisplay()
-	} else {
-		utils.TurnOnDisplay()
+	err := utils.SetBrightnessPercent(brightness)
+	if err != nil {
+		return fmt.Errorf("failed to set brightness: %v", err)
 	}
 
-	logger.Log.Infof("Set brightness to %d", brightness)
+	logger.Log.Infof("Set brightness to %d%%", brightness)
 	return nil
 }
 

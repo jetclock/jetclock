@@ -8,10 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jetclock/jetclock-sdk/pkg/utils"
-
 	"github.com/jetclock/jetclock-sdk/pkg/config"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
+	"github.com/jetclock/jetclock-sdk/pkg/utils"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -46,11 +45,11 @@ func main() {
 	}
 	logger.Log.Infof("📍 JetClock App started with PID %d - version ", os.Getpid(), version)
 
-	// // Initialize GPIO environment (packages and pigpiod daemon)
-	// if err := utils.InitializeGPIOEnvironment(); err != nil {
-	// 	logger.Log.Errorf("GPIO initialization failed: %v", err)
-	// 	// Continue anyway, app can still function without GPIO
-	// }
+	// Initialize GPIO environment (packages and pigpiod daemon)
+	if err := utils.InitializeGPIOEnvironment(); err != nil {
+		logger.Log.Errorf("GPIO initialization failed: %v", err)
+		// Continue anyway, app can still function without GPIO
+	}
 
 	p := utils.PidPath("jetclock")
 	if err := utils.WritePID(p); err != nil {
