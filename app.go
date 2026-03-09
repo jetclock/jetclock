@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jetclock/jetclock-sdk/pkg/config"
 	"github.com/jetclock/jetclock-sdk/pkg/logger"
 	"github.com/jetclock/jetclock-sdk/pkg/utils"
 )
@@ -65,7 +66,7 @@ func (a *App) domReady(ctx context.Context) {
 
 	// Initialize GPIO environment in background after splash screen is cleared
 	logger.Log.Infof("Starting background GPIO initialization now that app is ready")
-	utils.InitializeGPIOEnvironmentAsync()
+	// utils.InitializeGPIOEnvironmentAsync()
 }
 
 func (a *App) GetSystemID() string {
@@ -74,6 +75,15 @@ func (a *App) GetSystemID() string {
 
 func (a *App) GetVersion() string {
 	return version
+}
+
+func (a *App) GetClockType() string {
+	clockType, err := config.GetClockType()
+	if err != nil {
+		logger.Log.Errorf("Failed to get clock type: %v", err)
+		return ""
+	}
+	return clockType
 }
 
 // GetBrightness returns the current screen brightness (0 or 1)
@@ -87,7 +97,7 @@ func (a *App) SetBrightness(brightness int) error {
 	if brightness == 1 {
 		brightness = 100
 	}
-	
+
 	if brightness < 0 || brightness > 100 {
 		return fmt.Errorf("brightness must be between 0 and 100")
 	}

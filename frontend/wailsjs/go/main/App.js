@@ -6,6 +6,10 @@ export function GetBrightness() {
   return window['go']['main']['App']['GetBrightness']();
 }
 
+export function GetClockType() {
+  return window['go']['main']['App']['GetClockType']();
+}
+
 export function GetSystemID() {
   return window['go']['main']['App']['GetSystemID']();
 }

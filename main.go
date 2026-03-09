@@ -54,12 +54,12 @@ func main() {
 	options.NewRGB(0, 0, 0)
 	// Create application with options
 	err = wails.Run(&options.App{
-		Title:         "jetclock",
-		Width:         480,
-		Height:        480,
+		Title: "jetclock",
+		// Width:         480,
+		// Height:        480,
 		Frameless:     true,
 		DisableResize: true,
-		//Fullscreen: true,
+		Fullscreen:    true,
 		//Debug:      options.Debug{OpenInspectorOnStartup: true},
 		AssetServer: &assetserver.Options{
 			Assets: assets,

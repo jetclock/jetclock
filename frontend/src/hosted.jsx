@@ -5,6 +5,7 @@ import './index.css';
 function Loader() {
     const [systemID, setSystemID] = useState(null);
     const [version, setVersion] = useState(null);
+    const [clockType, setClockType] = useState('');
     const [loading, setLoading] = useState(true);
     const [iframeKey, setIframeKey] = useState(0);
 
@@ -22,8 +23,13 @@ function Loader() {
                 console.error(err);
                 setVersion('unknown');
             });
+        window.go.main.App.GetClockType()
+          .then(setClockType)
+          .catch(err => {
+              console.error(err);
+              setClockType('unknown');
+          });
     }, []);
-
     // Set up message listener for iframe commands
     useEffect(() => {
         const handleMessage = async (event) => {
@@ -112,7 +118,8 @@ function Loader() {
         );
     }
 
-    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}`;
+    const clockUrl = `https://jetclock-app-pr-2.onrender.com/clock/${systemID}?version=${version}&type=${clockType}`;
+    // const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}&type=${clockType}`;
     
     console.log('Rendering with:', { systemID, version, loading });
 

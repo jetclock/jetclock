@@ -3,6 +3,8 @@
 
 export function GetBrightness():Promise<number>;
 
+export function GetClockType():Promise<string>;
+
 export function GetSystemID():Promise<string>;
 
 export function GetVersion():Promise<string>;
