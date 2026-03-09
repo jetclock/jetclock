@@ -132,8 +132,8 @@ function Loader() {
                 title="JetClock"
                 allow="fullscreen"
                 style={{
-                    width: '480px',
-                    height: '480px',
+                    width: '100%',
+                    height: '100%',
                     border: 'none',
                     outline: 'none'
                 }}
