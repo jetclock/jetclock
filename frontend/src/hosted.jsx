@@ -34,7 +34,7 @@ function Loader() {
     useEffect(() => {
         const handleMessage = async (event) => {
             // Verify origin for security
-            if (event.origin !== 'https://app.jetclock.io') {
+            if (event.origin !== 'https://app.jetclock.io' && event.origin !== 'https://jetclock-app-pr-2.onrender.com') {
                 console.warn('Ignoring message from untrusted origin:', event.origin);
                 return;
             }
