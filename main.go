@@ -59,7 +59,7 @@ func main() {
 		// Height:        480,
 		Frameless: true,
 		// DisableResize: true,
-		Fullscreen: true,
+		WindowStartState: options.Maximised,
 		//Debug:      options.Debug{OpenInspectorOnStartup: true},
 		AssetServer: &assetserver.Options{
 			Assets: assets,
