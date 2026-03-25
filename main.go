@@ -57,9 +57,9 @@ func main() {
 		Title: "jetclock",
 		// Width:         480,
 		// Height:        480,
-		Frameless:     true,
-		DisableResize: true,
-		Fullscreen:    true,
+		Frameless: true,
+		// DisableResize: true,
+		Fullscreen: true,
 		//Debug:      options.Debug{OpenInspectorOnStartup: true},
 		AssetServer: &assetserver.Options{
 			Assets: assets,
