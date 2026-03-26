@@ -24,10 +24,10 @@ function Loader() {
                 setVersion('unknown');
             });
         window.go.main.App.GetClockType()
-          .then(setClockType)
+          .then(type => setClockType(type || 'desk'))  // Default to 'desk' if empty
           .catch(err => {
               console.error(err);
-              setClockType('unknown');
+              setClockType('desk');
           });
     }, []);
     // Set up message listener for iframe commands
