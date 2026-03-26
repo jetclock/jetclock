@@ -93,9 +93,31 @@ function Loader() {
 
     // Reload iframe every 4 hours
     useEffect(() => {
-        const reloadInterval = setInterval(() => {
-            setIframeKey(prev => prev + 1);
-        }, 4 * 60 * 60 * 1000); // 2 hours in milliseconds
+        const reloadInterval = setInterval(async () => {
+            // Check actual connectivity to the server
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                
+                const response = await fetch('https://app.jetclock.io/api/clock-status', {
+                  method: 'GET',
+                  cache: 'no-store',
+                  signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    console.log('Server reachable - reloading iframe');
+                    setIframeKey(prev => prev + 1);
+                } else {
+                    console.log('Server error - skipping reload');
+                }
+            } catch (err) {
+                console.log('Network unreachable - skipping iframe reload:', err.message);
+            }
+        }, 4 * 60 * 60 * 1000); // 4 hours in milliseconds
+        
         
         return () => clearInterval(reloadInterval);
     }, []);
