@@ -34,7 +34,7 @@ function Loader() {
     useEffect(() => {
         const handleMessage = async (event) => {
             // Verify origin for security
-            if (event.origin !== 'https://app.jetclock.io' && event.origin !== 'https://jetclock-app-pr-3.onrender.com') {
+            if (event.origin !== 'https://app.jetclock.io') {
                 console.warn('Ignoring message from untrusted origin:', event.origin);
                 return;
             }
@@ -140,8 +140,7 @@ function Loader() {
         );
     }
 
-    const clockUrl = `https://jetclock-app-pr-3.onrender.com/clock/${systemID}?version=${version}&type=${clockType}`;
-    // const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}&type=${clockType}`;
+    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}&type=${clockType}`;
     
     console.log('Rendering with:', { systemID, version, loading });
 
