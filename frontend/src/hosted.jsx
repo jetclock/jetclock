@@ -7,7 +7,6 @@ function Loader() {
     const [version, setVersion] = useState(null);
     const [clockType, setClockType] = useState('');
     const [loading, setLoading] = useState(true);
-    const [iframeKey, setIframeKey] = useState(0);
 
     // Get SystemID and Version from Go backend
     useEffect(() => {
@@ -54,9 +53,9 @@ function Loader() {
                     console.log(`Calling Go method: ${method}`, args);
                     result = await window.go.main.App[method](...args);
                 } else if (method === 'reloadIframe') {
-                    // Simple iframe reload - just change the key
-                    console.log('Reloading iframe');
-                    setIframeKey(prev => prev + 1);
+                    // Reload the entire page for better memory cleanup
+                    console.log('Reloading page');
+                    setTimeout(() => window.location.reload(true), 100); // Small delay to allow response
                     result = { success: true };
                 } else {
                     throw new Error(`Method '${method}' not found`);
@@ -108,15 +107,15 @@ function Loader() {
                 clearTimeout(timeoutId);
                 
                 if (response.ok) {
-                    console.log('Server reachable - reloading iframe');
-                    setIframeKey(prev => prev + 1);
+                    console.log('Server reachable - reloading page');
+                    window.location.reload(true); // Force reload, bypass cache
                 } else {
                     console.log('Server error - skipping reload');
                 }
             } catch (err) {
                 console.log('Network unreachable - skipping iframe reload:', err.message);
             }
-        }, 4 * 60 * 60 * 1000); // 4 hours in milliseconds
+        }, 10 * 60 * 1000); // 10 minutes in milliseconds (for testing)
         
         
         return () => clearInterval(reloadInterval);
@@ -147,7 +146,6 @@ function Loader() {
     return (
         <div className="w-full h-full">
             <iframe
-                key={iframeKey}
                 src={clockUrl}
                 className="border-0"
                 title="JetClock"
