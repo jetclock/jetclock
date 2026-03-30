@@ -115,7 +115,7 @@ function Loader() {
             } catch (err) {
                 console.log('Network unreachable - skipping iframe reload:', err.message);
             }
-        }, 10 * 60 * 1000); // 10 minutes in milliseconds (for testing)
+        }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
         
         
         return () => clearInterval(reloadInterval);
