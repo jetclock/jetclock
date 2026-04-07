@@ -90,37 +90,6 @@ function Loader() {
         };
     }, []);
 
-    // Reload iframe every 4 hours
-    useEffect(() => {
-        const reloadInterval = setInterval(async () => {
-            // Check actual connectivity to the server
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-                
-                const response = await fetch('https://app.jetclock.io/api/clock-status', {
-                  method: 'GET',
-                  cache: 'no-store',
-                  signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (response.ok) {
-                    console.log('Server reachable - reloading page');
-                    window.location.reload(true); // Force reload, bypass cache
-                } else {
-                    console.log('Server error - skipping reload');
-                }
-            } catch (err) {
-                console.log('Network unreachable - skipping iframe reload:', err.message);
-            }
-        }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
-        
-        
-        return () => clearInterval(reloadInterval);
-    }, []);
-
     // Show iframe once we have the systemID
     useEffect(() => {
         console.log('Loading state check:', { systemID, version, loading });
