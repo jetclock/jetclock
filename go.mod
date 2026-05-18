@@ -3,11 +3,11 @@ module jetclock
 go 1.24.3
 
 require (
-	github.com/jetclock/jetclock-sdk v0.5.17
+	github.com/jetclock/jetclock-sdk v0.5.21
 	github.com/wailsapp/wails/v2 v2.10.1
 )
 
-replace github.com/jetclock/jetclock-sdk => ../jetclock-sdk
+// replace github.com/jetclock/jetclock-sdk => ../jetclock-sdk
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
