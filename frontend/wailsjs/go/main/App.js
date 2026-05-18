@@ -18,6 +18,10 @@ export function GetVersion() {
   return window['go']['main']['App']['GetVersion']();
 }
 
+export function PowerOff() {
+  return window['go']['main']['App']['PowerOff']();
+}
+
 export function Reboot() {
   return window['go']['main']['App']['Reboot']();
 }

@@ -33,7 +33,7 @@ function Loader() {
     useEffect(() => {
         const handleMessage = async (event) => {
             // Verify origin for security
-            if (event.origin !== 'https://app.jetclock.io') {
+            if (event.origin !== 'https://jetclock-app-pr-5.onrender.com') {
                 console.warn('Ignoring message from untrusted origin:', event.origin);
                 return;
             }
@@ -52,11 +52,6 @@ function Loader() {
                 if (window.go?.main?.App?.[method]) {
                     console.log(`Calling Go method: ${method}`, args);
                     result = await window.go.main.App[method](...args);
-                } else if (method === 'reloadIframe') {
-                    // Reload the entire page for better memory cleanup
-                    console.log('Reloading page');
-                    setTimeout(() => window.location.reload(true), 100); // Small delay to allow response
-                    result = { success: true };
                 } else {
                     throw new Error(`Method '${method}' not found`);
                 }
@@ -108,7 +103,7 @@ function Loader() {
         );
     }
 
-    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}&type=${clockType}`;
+    const clockUrl = `https://jetclock-app-pr-5.onrender.com/clock/${systemID}?version=${version}&type=${clockType}`;
     
     console.log('Rendering with:', { systemID, version, loading });
 

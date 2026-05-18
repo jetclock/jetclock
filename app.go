@@ -117,3 +117,10 @@ func (a *App) Reboot() error {
 	utils.Reboot()
 	return nil
 }
+
+// PowerOff powers off the system
+func (a *App) PowerOff() error {
+	logger.Log.Infof("Powering off system...")
+	utils.PowerOff()
+	return nil
+}
