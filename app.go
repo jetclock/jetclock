@@ -86,9 +86,9 @@ func (a *App) GetClockType() string {
 	return clockType
 }
 
-// GetBrightness returns the current screen brightness (0 or 1)
+// GetBrightness returns the current screen brightness as a percentage (0-100)
 func (a *App) GetBrightness() (int, error) {
-	return utils.CheckDisplay()
+	return utils.GetBrightnessPercent()
 }
 
 // SetBrightness sets the screen brightness (0-100 percentage)
