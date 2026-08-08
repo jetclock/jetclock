@@ -86,6 +86,15 @@ func (a *App) GetClockType() string {
 	return clockType
 }
 
+func (a *App) GetFlashVersion() int {
+	flashVersion, err := config.GetFlashVersion()
+	if err != nil {
+		logger.Log.Errorf("Failed to get flash version: %v", err)
+		return 1
+	}
+	return flashVersion
+}
+
 // GetBrightness returns the current screen brightness as a percentage (0-100)
 func (a *App) GetBrightness() (int, error) {
 	return utils.GetBrightnessPercent()

@@ -6,6 +6,7 @@ function Loader() {
     const [systemID, setSystemID] = useState(null);
     const [version, setVersion] = useState(null);
     const [clockType, setClockType] = useState('');
+    const [flashVersion, setFlashVersion] = useState(1);
     const [loading, setLoading] = useState(true);
 
     // Get SystemID and Version from Go backend
@@ -28,12 +29,18 @@ function Loader() {
               console.error(err);
               setClockType('desk');
           });
+        window.go.main.App.GetFlashVersion()
+          .then(version => setFlashVersion(version || 1))  // Default to 1 if not set
+          .catch(err => {
+              console.error(err);
+              setFlashVersion(1);
+          });
     }, []);
     // Set up message listener for iframe commands
     useEffect(() => {
         const handleMessage = async (event) => {
             // Verify origin for security
-            if (event.origin !== 'https://jetclock-app-pr-5.onrender.com') {
+            if (event.origin !== 'https://app.jetclock.io') {
                 console.warn('Ignoring message from untrusted origin:', event.origin);
                 return;
             }
@@ -103,7 +110,7 @@ function Loader() {
         );
     }
 
-    const clockUrl = `https://jetclock-app-pr-5.onrender.com/clock/${systemID}?version=${version}&type=${clockType}`;
+    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}&type=${clockType}&flashVersion=${flashVersion}`;
     
     console.log('Rendering with:', { systemID, version, loading });
 

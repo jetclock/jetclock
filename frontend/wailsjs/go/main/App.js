@@ -10,6 +10,10 @@ export function GetClockType() {
   return window['go']['main']['App']['GetClockType']();
 }
 
+export function GetFlashVersion() {
+  return window['go']['main']['App']['GetFlashVersion']();
+}
+
 export function GetSystemID() {
   return window['go']['main']['App']['GetSystemID']();
 }
