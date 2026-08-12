@@ -1,6 +1,8 @@
 import { render } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import './index.css';
+
+const APP_ORIGIN = 'https://app.jetclock.io';
 
 function Loader() {
     const [systemID, setSystemID] = useState(null);
@@ -8,6 +10,7 @@ function Loader() {
     const [clockType, setClockType] = useState('');
     const [flashVersion, setFlashVersion] = useState(1);
     const [loading, setLoading] = useState(true);
+    const iframeRef = useRef(null);
 
     // Get SystemID and Version from Go backend
     useEffect(() => {
@@ -40,7 +43,7 @@ function Loader() {
     useEffect(() => {
         const handleMessage = async (event) => {
             // Verify origin for security
-            if (event.origin !== 'https://app.jetclock.io') {
+            if (event.origin !== APP_ORIGIN) {
                 console.warn('Ignoring message from untrusted origin:', event.origin);
                 return;
             }
@@ -101,6 +104,41 @@ function Loader() {
         }
     }, [systemID, version]);
 
+    // --- Keyboard handoff to the hosted UI ---------------------------------
+    // keydown is only ever delivered to the focused document, and on boot that
+    // is this loader, not the iframe. The hosted app binds arrow keys to cycle
+    // glances, so without a handoff those presses die here — and on a Zero
+    // (no touchscreen) nothing ever taps the iframe to move focus to it.
+    //
+    // Two mechanisms, and they cannot double-fire: a keydown goes to exactly
+    // one document and key events do not cross frame boundaries. If focus() below
+    // took, the iframe gets the press and this listener never sees it; if focus
+    // is still here, the forward is what gets it there.
+    useEffect(() => {
+        const onKeyDown = (e) => {
+            if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+            if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+            e.preventDefault();
+            iframeRef.current?.contentWindow?.postMessage(
+                { type: 'jetclock:key', key: e.key },
+                APP_ORIGIN
+            );
+        };
+
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, []);
+
+    // Hand focus to the iframe as soon as its document is up. Cross-origin
+    // contentWindow.focus() is permitted; only reaching *into* the document is not.
+    const focusFrame = () => {
+        try {
+            iframeRef.current?.contentWindow?.focus();
+        } catch (err) {
+            console.warn('Could not focus clock iframe:', err);
+        }
+    };
+
     if (loading) {
         console.log('Showing loading screen');
         return (
@@ -110,14 +148,16 @@ function Loader() {
         );
     }
 
-    const clockUrl = `https://app.jetclock.io/clock/${systemID}?version=${version}&type=${clockType}&flashVersion=${flashVersion}`;
+    const clockUrl = `${APP_ORIGIN}/clock/${systemID}?version=${version}&type=${clockType}&flashVersion=${flashVersion}`;
     
     console.log('Rendering with:', { systemID, version, loading });
 
     return (
         <div className="w-full h-full">
             <iframe
+                ref={iframeRef}
                 src={clockUrl}
+                onLoad={focusFrame}
                 className="border-0"
                 title="JetClock"
                 allow="fullscreen"
